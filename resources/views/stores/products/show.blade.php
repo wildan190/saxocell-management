@@ -1,0 +1,230 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="max-w-5xl mx-auto space-y-8 pb-20">
+        <!-- Breadcrumbs & Header -->
+        <div class="sm:flex sm:items-center justify-between">
+            <div class="space-y-1">
+                <nav class="flex mb-2" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <li><a href="{{ route('stores.show', $store) }}"
+                                class="hover:text-slate-600 transition-colors">Store</a></li>
+                        <li><svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                    clip-rule="evenodd" />
+                            </svg></li>
+                        <li><a href="{{ route('stores.products.index', $store) }}"
+                                class="hover:text-slate-600 transition-colors">Manage Products</a></li>
+                        <li><svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                    clip-rule="evenodd" />
+                            </svg></li>
+                        <li class="text-slate-900">{{ $product->product->sku }}</li>
+                    </ol>
+                </nav>
+                <h1 class="text-3xl font-black tracking-tight text-slate-900">{{ $product->product->name }}</h1>
+            </div>
+            <div class="flex gap-3">
+                <button type="button"
+                    onclick="openAdjustModal({{ $product->id }}, '{{ addslashes($product->product->name) }}', '{{ $product->description_1 }}', '{{ $product->description_2 }}', '{{ $product->description_3 }}', {{ $product->price }}, {{ $product->stock }}, {{ $product->is_active ? 'true' : 'false' }})"
+                    class="rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98]">
+                    Edit Details
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Image & Basic Info -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Product Card -->
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden group">
+                    <div class="aspect-square bg-slate-50 relative overflow-hidden">
+                        @if($product->image_path)
+                            <img src="{{ asset('storage/' . $product->image_path) }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        @else
+                            <div class="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                                <svg class="w-20 h-20 mb-2 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                                <span class="text-xs font-bold uppercase tracking-widest opacity-50">No Product Image</span>
+                            </div>
+                        @endif
+
+                        <!-- Status Badge -->
+                        <div class="absolute top-4 right-4">
+                            <span
+                                class="inline-flex items-center rounded-full px-4 py-1 text-xs font-black uppercase tracking-wider {{ $product->is_active ? 'bg-green-500/90 text-white backdrop-blur-md' : 'bg-slate-500/90 text-white backdrop-blur-md' }}">
+                                {{ $product->is_active ? 'Live' : 'Hidden' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-8 bg-slate-50/50">
+                        <div class="flex justify-between items-end mb-6">
+                            <div class="space-y-1">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Base SKU</p>
+                                <p
+                                    class="text-sm font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg inline-block">
+                                    {{ $product->product->sku }}</p>
+                            </div>
+                            <div class="text-right space-y-1">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</p>
+                                <p class="text-sm font-bold text-slate-900">
+                                    {{ $product->product->category ?? 'Uncategorized' }}</p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Store Price</p>
+                                <p class="text-2xl font-black text-slate-900">Rp
+                                    {{ number_format($product->price, 0, ',', '.') }}</p>
+                            </div>
+                            <svg class="h-8 w-8 text-slate-100" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.94-7 10.18-3.87-1.24-7-5.51-7-10.18V6.3l7-3.12z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Summary -->
+                <div
+                    class="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
+                    <div class="relative z-10 flex items-center justify-between">
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Current Stock</p>
+                            <p class="text-4xl font-black">{{ $product->stock }} <span
+                                    class="text-lg font-medium opacity-70">{{ $product->product->unit }}</span></p>
+                        </div>
+                        <div class="h-16 w-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-white/10 relative z-10">
+                        <div
+                            class="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-indigo-200">
+                            <span>Inventory Status</span>
+                            @if($product->stock <= 5)
+                                <span class="text-rose-300 flex items-center gap-1">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse"></span> Low Stock
+                                </span>
+                            @else
+                                <span class="text-emerald-300">In Stock</span>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- Decoration -->
+                    <div
+                        class="absolute -bottom-8 -right-8 h-32 w-32 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Details & Descriptions -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Descriptions Card -->
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-10">
+                        <div class="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 6.75h16.5M3.75 12H12m-8.25 5.25h16.5" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Marketplace Descriptions</h2>
+                    </div>
+
+                    <div class="space-y-12">
+                        <!-- Desc 1 -->
+                        <div class="relative pl-8">
+                            <div class="absolute left-0 top-0 text-[10px] font-black text-slate-200 mt-1">01</div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Primary
+                                Specification</h3>
+                            <p class="text-lg text-slate-700 font-medium leading-relaxed italic">
+                                {{ $product->description_1 ?: 'No description provided.' }}
+                            </p>
+                        </div>
+
+                        <!-- Desc 2 & 3 Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0 text-[10px] font-black text-slate-200 mt-1">02</div>
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Secondary Info
+                                </h3>
+                                <p class="text-slate-600 leading-relaxed">
+                                    {{ $product->description_2 ?: '-' }}
+                                </p>
+                            </div>
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0 text-[10px] font-black text-slate-200 mt-1">03</div>
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Additional
+                                    Details</h3>
+                                <p class="text-slate-600 leading-relaxed">
+                                    {{ $product->description_3 ?: '-' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Info / Stats -->
+                <div
+                    class="bg-slate-50/50 rounded-[2rem] border border-slate-100 p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Added at</p>
+                        <p class="text-sm font-bold text-slate-900">{{ $product->created_at->format('M d, Y') }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Update</p>
+                        <p class="text-sm font-bold text-slate-900">{{ $product->updated_at->diffForHumans() }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Internal ID</p>
+                        <p class="text-sm font-mono font-bold text-slate-500">
+                            #SP-{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Status</p>
+                        <p class="text-sm font-bold text-emerald-600">Healthy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reuse Adjustment Modal structure from index.blade.php but update the JS -->
+    @include('stores.products.partials.adjust-modal')
+
+@endsection
+
+@push('scripts')
+    <script>
+        function openAdjustModal(id, name, d1, d2, d3, price, stock, isActive) {
+            const form = document.getElementById('adjustForm');
+            form.action = `/stores/{{ $store->id }}/products/${id}/adjust`;
+
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalDesc1').value = (d1 === 'null' || d1 === '') ? '' : d1;
+            document.getElementById('modalDesc2').value = (d2 === 'null' || d2 === '') ? '' : d2;
+            document.getElementById('modalDesc3').value = (d3 === 'null' || d3 === '') ? '' : d3;
+            document.getElementById('modalPrice').value = price;
+            document.getElementById('modalStock').value = stock;
+            document.getElementById('modalActive').checked = isActive === true || isActive === 'true';
+
+            document.getElementById('adjustModal').classList.remove('hidden');
+        }
+
+        function closeAdjustModal() {
+            document.getElementById('adjustModal').classList.add('hidden');
+        }
+    </script>
+@endpush
