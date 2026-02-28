@@ -63,8 +63,9 @@
                             </h2>
                             <div
                                 class="p-8 bg-indigo-50/30 rounded-[32px] border-2 border-dashed border-indigo-100 space-y-4">
-                                <p class="text-center text-sm font-medium text-indigo-900">Please transfer the total amount
-                                    and upload the screenshot.</p>
+                                <p class="text-center text-sm font-medium text-indigo-900">Please transfer the total amount to <br> 
+                                    <span class="text-lg font-black tracking-widest text-indigo-600">BCA 5475530826</span><br>
+                                    and upload the screenshot proof below.</p>
                                 <div class="flex flex-col items-center">
                                     <label class="cursor-pointer group">
                                         <div class="flex flex-col items-center justify-center space-y-2">
