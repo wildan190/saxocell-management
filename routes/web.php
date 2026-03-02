@@ -22,6 +22,16 @@ use App\Http\Controllers\WarehouseGoodsRequestController;
 use App\Http\Controllers\GoodsReturnController;
 use App\Http\Controllers\StoreToStoreTransferController;
 use App\Http\Controllers\StockOpnameController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\HrmAttendanceController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\EssAttendanceController;
+use App\Http\Controllers\EssLeaveController;
+use App\Http\Controllers\EssPayrollController;
+use App\Http\Controllers\ResignationController;
+use App\Http\Controllers\EssResignationController;
+use App\Http\Controllers\FinanceReportController;
 use Illuminate\Support\Facades\Route;
 
 // Marketplace & Customer Portal (Public)
@@ -76,6 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/incoming-requests/{goodsRequest}', [WarehouseGoodsRequestController::class, 'show'])->name('warehouses.incoming-requests.show');
         Route::post('/incoming-requests/{goodsRequest}/confirm', [WarehouseGoodsRequestController::class, 'confirm'])->name('warehouses.incoming-requests.confirm');
         Route::post('/incoming-requests/{goodsRequest}/ship', [WarehouseGoodsRequestController::class, 'ship'])->name('warehouses.incoming-requests.ship');
+
     });
 
     // Global Resource Management
@@ -121,6 +132,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/warehouse-shipments/{transfer}/receive', [WarehouseGoodsRequestController::class, 'receive'])->name('stores.warehouse-shipments.receive');
     });
 
+    // Finance Reports (Global)
+    Route::prefix('finance/reports')->name('finance.reports.')->group(function () {
+        Route::get('/', [FinanceReportController::class, 'index'])->name('index');
+        Route::get('/ledger', [FinanceReportController::class, 'ledger'])->name('ledger');
+        Route::get('/cashflow', [FinanceReportController::class, 'cashflow'])->name('cashflow');
+        Route::get('/neraca', [FinanceReportController::class, 'neraca'])->name('neraca');
+        Route::get('/pnl', [FinanceReportController::class, 'pnl'])->name('pnl');
+    });
+
     // Inventory Management (Global)
     Route::get('/inventory/overview', [InventoryOverviewController::class, 'index'])->name('inventory.overview');
     Route::get('/inventory/goods-returns', [GoodsReturnController::class, 'index'])->name('inventory.goods-returns.global');
@@ -151,4 +171,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('admin.orders.confirm');
     Route::post('/admin/orders/{order}/ship', [AdminOrderController::class, 'ship'])->name('admin.orders.ship');
     Route::post('/admin/orders/{order}/complete', [AdminOrderController::class, 'complete'])->name('admin.orders.complete');
+
+    // HRM & ESS Management
+    Route::prefix('hrm')->name('hrm.')->group(function () {
+        Route::resource('employees', EmployeeController::class);
+        Route::get('/attendance', [HrmAttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+        Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
+        Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
+
+        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+        Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
+        Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');
+        Route::get('/payroll/{payroll}', [PayrollController::class, 'show'])->name('payroll.show');
+        Route::post('/payroll/{payroll}/publish', [PayrollController::class, 'publish'])->name('payroll.publish');
+
+        Route::get('/resignations', [ResignationController::class, 'index'])->name('resignations.index');
+        Route::post('/resignations/{resignation}/approve', [ResignationController::class, 'approve'])->name('resignations.approve');
+        Route::post('/resignations/{resignation}/reject', [ResignationController::class, 'reject'])->name('resignations.reject');
+    });
+
+    // ESS (Employee Self Service)
+    Route::prefix('ess')->name('ess.')->group(function () {
+        Route::get('/dashboard', [EssAttendanceController::class, 'dashboard'])->name('dashboard');
+        Route::post('/attendance/clock-in', [EssAttendanceController::class, 'clockIn'])->name('attendance.clock-in');
+        Route::post('/attendance/clock-out', [EssAttendanceController::class, 'clockOut'])->name('attendance.clock-out');
+
+        Route::resource('leaves', EssLeaveController::class);
+        Route::get('/payroll', [EssPayrollController::class, 'index'])->name('payroll.index');
+        Route::get('/payroll/{payrollItem}', [EssPayrollController::class, 'show'])->name('payroll.show');
+
+        Route::resource('resignations', EssResignationController::class);
+    });
 });
