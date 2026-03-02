@@ -32,6 +32,8 @@ use App\Http\Controllers\EssPayrollController;
 use App\Http\Controllers\ResignationController;
 use App\Http\Controllers\EssResignationController;
 use App\Http\Controllers\FinanceReportController;
+use App\Http\Controllers\StorePosController;
+use App\Http\Controllers\StoreTradeInController;
 use Illuminate\Support\Facades\Route;
 
 // Marketplace & Customer Portal (Public)
@@ -130,6 +132,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/warehouse-shipments', [WarehouseGoodsRequestController::class, 'index'])->name('stores.warehouse-shipments.index');
         Route::get('/warehouse-shipments/{transfer}', [WarehouseGoodsRequestController::class, 'show'])->name('stores.warehouse-shipments.show');
         Route::post('/warehouse-shipments/{transfer}/receive', [WarehouseGoodsRequestController::class, 'receive'])->name('stores.warehouse-shipments.receive');
+
+        // POS (Point of Sale)
+        Route::get('/pos', [StorePosController::class, 'index'])->name('stores.pos.index');
+        Route::get('/pos/create', [StorePosController::class, 'create'])->name('stores.pos.create');
+        Route::post('/pos', [StorePosController::class, 'store'])->name('stores.pos.store');
+        Route::get('/pos/{transaction}', [StorePosController::class, 'show'])->name('stores.pos.show');
+
+        // Trade-In
+        Route::get('/trade-ins', [StoreTradeInController::class, 'index'])->name('stores.trade-ins.index');
+        Route::get('/trade-ins/create', [StoreTradeInController::class, 'create'])->name('stores.trade-ins.create');
+        Route::post('/trade-ins', [StoreTradeInController::class, 'store'])->name('stores.trade-ins.store');
+        Route::get('/trade-ins/{tradeIn}', [StoreTradeInController::class, 'show'])->name('stores.trade-ins.show');
+        Route::post('/trade-ins/{tradeIn}/approve', [StoreTradeInController::class, 'approve'])->name('stores.trade-ins.approve');
+        Route::post('/trade-ins/{tradeIn}/reject', [StoreTradeInController::class, 'reject'])->name('stores.trade-ins.reject');
     });
 
     // Finance Reports (Global)

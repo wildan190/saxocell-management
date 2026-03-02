@@ -140,6 +140,61 @@
             </div>
         </div>
 
+        {{-- POS & Trade-In Quick Access --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {{-- POS --}}
+            <a href="{{ route('stores.pos.create', $store) }}"
+                class="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[28px] p-7 shadow-xl shadow-indigo-200 hover:shadow-2xl hover:shadow-indigo-300 hover:-translate-y-1 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-10">
+                </div>
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-indigo-200 text-xs font-black uppercase tracking-widest group-hover:text-white transition-colors">Buka
+                            →</span>
+                    </div>
+                    <p class="text-white/70 text-xs font-black uppercase tracking-widest mb-1">Point of Sale</p>
+                    <h3 class="text-2xl font-black text-white leading-tight">Terminal Kasir</h3>
+                    <p class="text-indigo-200 text-sm font-medium mt-2">Proses transaksi penjualan langsung di toko</p>
+                </div>
+            </a>
+
+            {{-- Trade-In --}}
+            <a href="{{ route('stores.trade-ins.index', $store) }}"
+                class="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-[28px] p-7 shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-10">
+                </div>
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-slate-400 text-xs font-black uppercase tracking-widest group-hover:text-white transition-colors">Lihat
+                            →</span>
+                    </div>
+                    <p class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Trade-In</p>
+                    <h3 class="text-2xl font-black text-white leading-tight">Tukar Tambah</h3>
+                    <p class="text-slate-400 text-sm font-medium mt-2">Terima & nilai perangkat bekas pelanggan</p>
+                </div>
+            </a>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Recent Activity -->
             <div class="bg-white rounded-3xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
