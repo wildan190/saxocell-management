@@ -52,6 +52,7 @@ class StoreToStoreTransferController extends Controller
                 'transfer_number' => 'TRF-' . strtoupper(Str::random(8)),
                 'status' => 'pending',
                 'notes' => $request->notes,
+                'created_by' => auth()->user()->name,
             ]);
 
             foreach ($request->items as $item) {
@@ -97,6 +98,7 @@ class StoreToStoreTransferController extends Controller
             $transfer->update([
                 'status' => 'shipped',
                 'shipped_at' => now(),
+                'shipped_by' => auth()->user()->name,
             ]);
 
             $this->logActivity($transfer, 'shipped', 'Transfer shipped by ' . auth()->user()->name);
@@ -124,6 +126,7 @@ class StoreToStoreTransferController extends Controller
             $transfer->update([
                 'status' => 'received',
                 'received_at' => now(),
+                'received_by' => auth()->user()->name,
             ]);
 
             $this->logActivity($transfer, 'received', 'Transfer received by ' . auth()->user()->name);

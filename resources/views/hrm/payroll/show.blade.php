@@ -30,12 +30,16 @@
                             <th scope="col" class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                                 Employee</th>
                             <th scope="col" class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-center">Days</th>
+                            <th scope="col" class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-center">Overtime</th>
                             <th scope="col"
                                 class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right">
                                 Basic Salary</th>
                             <th scope="col"
                                 class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right">
                                 Allowance</th>
+                            <th scope="col"
+                                class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right">
+                                Overtime Pay</th>
                             <th scope="col"
                                 class="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right">
                                 Deductions</th>
@@ -51,9 +55,12 @@
                                     <p class="font-black text-slate-900 border-l-4 border-indigo-500 pl-4 transition-all group-hover:pl-6">{{ $item->user->name }}</p>
                                 </td>
                                 <td class="px-8 py-6 text-center font-bold text-slate-900 italic tabular-nums">{{ $item->total_days }}</td>
+                                <td class="px-8 py-6 text-center font-bold text-indigo-600 italic tabular-nums">{{ number_format($item->overtime_hours, 1) }}h</td>
                                 <td class="px-8 py-6 text-right font-medium text-slate-600">Rp {{ number_format($item->basic_salary, 0, ',', '.') }}</td>
                                 <td class="px-8 py-6 text-right font-medium text-slate-600">Rp
                                     {{ number_format($item->allowance, 0, ',', '.') }}</td>
+                                <td class="px-8 py-6 text-right font-bold text-indigo-600">+ Rp
+                                    {{ number_format($item->overtime_pay, 0, ',', '.') }}</td>
                                 <td class="px-8 py-6 text-right font-medium text-rose-600">- Rp
                                     {{ number_format($item->deductions, 0, ',', '.') }}</td>
                                 <td class="px-8 py-6 text-right font-black text-slate-900 text-lg">

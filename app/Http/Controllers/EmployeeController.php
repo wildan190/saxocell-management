@@ -34,6 +34,7 @@ class EmployeeController extends Controller
             'position_role' => 'required|string|exists:roles,name',
             'basic_salary' => 'required|numeric|min:0',
             'allowance' => 'nullable|numeric|min:0',
+            'overtime_rate' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -55,6 +56,7 @@ class EmployeeController extends Controller
                 'jht' => $request->has('jht'),
                 'bpjs' => $request->has('bpjs'),
                 'overtime_eligible' => $request->has('overtime_eligible'),
+                'overtime_rate' => $request->overtime_rate ?? 0,
                 'onboarded_at' => now(),
             ]);
         });

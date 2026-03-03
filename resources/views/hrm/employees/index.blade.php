@@ -57,6 +57,11 @@
                                         @if($employee->tax_pph21) <span class="text-[10px] font-black uppercase tracking-tighter bg-rose-50 text-rose-600 px-2 py-0.5 rounded-lg border border-rose-100">PPH21</span> @endif
                                         @if($employee->jht) <span class="text-[10px] font-black uppercase tracking-tighter bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg border border-indigo-100">JHT</span> @endif
                                         @if($employee->bpjs) <span class="text-[10px] font-black uppercase tracking-tighter bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-lg border border-emerald-100">BPJS</span> @endif
+                                        @if($employee->overtime_eligible) 
+                                            <span class="text-[10px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 px-2 py-0.5 rounded-lg border border-amber-100">
+                                                OT: Rp {{ number_format($employee->overtime_rate, 0, ',', '.') }}/h
+                                            </span> 
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-8 py-6 text-right">

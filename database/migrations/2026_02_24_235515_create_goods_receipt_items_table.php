@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('goods_receipt_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity', 15, 2);
+            $table->decimal('purchase_price', 15, 2)->default(0);
             $table->timestamps();
         });
     }

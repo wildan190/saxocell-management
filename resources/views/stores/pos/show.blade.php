@@ -61,9 +61,8 @@
                     </div>
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Pembayaran</p>
-                        @php $labels = ['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS']; @endphp
                         <p class="font-black text-slate-900">
-                            {{ $labels[$transaction->payment_method] ?? $transaction->payment_method }}</p>
+                            {{ $transaction->payment_method_label }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
@@ -109,11 +108,21 @@
                         <span class="font-black text-indigo-700 text-xl">Rp
                             {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between text-sm">
+                    <div class="flex justify-between text-sm py-1">
                         <span class="text-slate-500 font-medium">Dibayar</span>
                         <span class="font-bold text-slate-700">Rp
                             {{ number_format($transaction->amount_paid, 0, ',', '.') }}</span>
                     </div>
+                    @if($transaction->payment_splits)
+                        <div class="space-y-1 pl-4 border-l-2 border-slate-100 ml-1 mb-2">
+                            @foreach($transaction->payment_splits as $split)
+                                <div class="flex justify-between text-[11px] text-slate-400 font-bold italic">
+                                    <span>{{ $split['label'] }}</span>
+                                    <span>Rp {{ number_format($split['amount'], 0, ',', '.') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                     @if($transaction->change_amount > 0)
                         <div class="flex justify-between text-sm bg-green-50 rounded-xl px-4 py-2.5">
                             <span class="text-green-700 font-black">Kembalian</span>

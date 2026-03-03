@@ -39,6 +39,7 @@ class StoreGoodsRequestController extends Controller
                 'warehouse_id' => $request->warehouse_id,
                 'notes' => $request->notes,
                 'status' => 'pending',
+                'requested_by' => auth()->user()->name,
             ]);
 
             foreach ($request->items as $item) {
@@ -79,7 +80,10 @@ class StoreGoodsRequestController extends Controller
                 $storeProduct->save();
             }
 
-            $request->update(['status' => 'received']);
+            $request->update([
+                'status' => 'received',
+                'received_by' => auth()->user()->name,
+            ]);
         });
 
         return redirect()->route('stores.goods-requests.index', $store)

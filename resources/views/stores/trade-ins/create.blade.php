@@ -45,7 +45,7 @@
                     <div>
                         <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Ditangani
                             Oleh</label>
-                        <input type="text" name="handled_by" value="{{ old('handled_by') }}"
+                        <input type="text" name="handled_by" value="{{ old('handled_by', auth()->user()->name) }}"
                             class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
@@ -110,6 +110,42 @@
                         Kondisi</label>
                     <textarea name="condition_notes" rows="3" placeholder="Describe any damage, accessories included, etc."
                         class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none">{{ old('condition_notes') }}</textarea>
+                </div>
+            </div>
+
+            {{-- Desired Product Section --}}
+            <div class="bg-white rounded-[28px] ring-1 ring-slate-100 shadow-sm p-8 space-y-6">
+                <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">
+                    Produk Pengganti yang Diinginkan</h3>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Pilih
+                            Produk / HP Baru</label>
+                        <div class="relative group">
+                            <input type="text" name="desired_product" value="{{ old('desired_product') }}"
+                                list="product-list" placeholder="Cari atau ketik nama produk..."
+                                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white group-hover:border-slate-300 transition-all">
+                            <datalist id="product-list">
+                                @foreach($products as $sp)
+                                    <option value="{{ $sp->product->name }} (Rp {{ number_format($sp->price, 0, ',', '.') }})">
+                                @endforeach
+                            </datalist>
+                            <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium mt-1.5">Pilih dari stok tersedia atau ketik secara
+                            manual</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Catatan
+                            Tambahan</label>
+                        <textarea name="desired_product_notes" rows="2"
+                            placeholder="e.g. warna hitam, storage 256GB, kondisi baru..."
+                            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none">{{ old('desired_product_notes') }}</textarea>
+                    </div>
                 </div>
             </div>
 

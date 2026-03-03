@@ -17,6 +17,8 @@ class TradeIn extends Model
         'imei',
         'condition',
         'condition_notes',
+        'desired_product',
+        'desired_product_notes',
         'assessed_value',
         'purchase_price',
         'status',

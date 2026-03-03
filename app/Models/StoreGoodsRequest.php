@@ -12,6 +12,10 @@ class StoreGoodsRequest extends Model
         'warehouse_id',
         'status',
         'notes',
+        'requested_by',
+        'confirmed_by',
+        'shipped_by',
+        'received_by',
     ];
 
     public function store()

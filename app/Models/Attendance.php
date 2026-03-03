@@ -13,6 +13,8 @@ class Attendance extends Model
         'clock_out',
         'location_in',
         'location_out',
+        'image_in',
+        'image_out',
     ];
 
     public function user()

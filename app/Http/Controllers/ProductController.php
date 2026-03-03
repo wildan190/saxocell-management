@@ -41,10 +41,41 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'unit' => 'required|string|max:50',
             'description' => 'nullable|string',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
         ]);
 
         Product::create($validated);
 
         return back()->with('success', 'Product created successfully.');
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'unit' => 'required|string|max:50',
+            'description' => 'nullable|string',
+            'purchase_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'adjustment_reason' => 'nullable|string|max:255',
+        ]);
+
+        // Check for price changes to log history
+        if ($product->purchase_price != $request->purchase_price || $product->selling_price != $request->selling_price) {
+            \App\Models\ProductPriceHistory::create([
+                'product_id' => $product->id,
+                'old_purchase_price' => $product->purchase_price,
+                'new_purchase_price' => $request->purchase_price,
+                'old_selling_price' => $product->selling_price,
+                'new_selling_price' => $request->selling_price,
+                'reason' => $request->adjustment_reason ?: 'Manual Adjustment',
+                'user_id' => auth()->id(),
+            ]);
+        }
+
+        $product->update($validated);
+
+        return back()->with('success', 'Product updated successfully.');
     }
 }

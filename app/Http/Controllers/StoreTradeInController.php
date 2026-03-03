@@ -22,7 +22,13 @@ class StoreTradeInController extends Controller
 
     public function create(Store $store)
     {
-        return view('stores.trade-ins.create', compact('store'));
+        $products = \App\Models\StoreProduct::where('store_id', $store->id)
+            ->where('is_active', true)
+            ->where('stock', '>', 0)
+            ->with('product')
+            ->get();
+
+        return view('stores.trade-ins.create', compact('store', 'products'));
     }
 
     public function store(Request $request, Store $store)
@@ -36,6 +42,8 @@ class StoreTradeInController extends Controller
             'imei' => 'nullable|string|max:50',
             'condition' => 'required|in:excellent,good,fair,poor',
             'condition_notes' => 'nullable|string',
+            'desired_product' => 'nullable|string|max:255',
+            'desired_product_notes' => 'nullable|string',
             'assessed_value' => 'nullable|numeric|min:0',
             'handled_by' => 'nullable|string|max:255',
         ]);

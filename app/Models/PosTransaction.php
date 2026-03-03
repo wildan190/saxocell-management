@@ -12,6 +12,7 @@ class PosTransaction extends Model
         'cashier_name',
         'customer_name',
         'payment_method',
+        'payment_splits',
         'subtotal',
         'discount',
         'total_amount',
@@ -19,6 +20,16 @@ class PosTransaction extends Model
         'change_amount',
         'notes',
     ];
+
+    protected $casts = [
+        'payment_splits' => 'array',
+    ];
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        $labels = ['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS', 'split' => 'Split Payment'];
+        return $labels[$this->payment_method] ?? ucfirst($this->payment_method);
+    }
 
     public function store()
     {

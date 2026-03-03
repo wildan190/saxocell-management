@@ -136,14 +136,42 @@
                                 <span class="font-black text-indigo-700 text-lg" x-text="'Rp ' + formatNum(total())"></span>
                             </div>
                             {{-- Amount Paid --}}
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3" x-show="!isSplit">
                                 <label class="text-sm text-slate-500 font-medium w-24 flex-shrink-0">Dibayar (Rp)</label>
                                 <input type="number" name="amount_paid" x-model.number="amountPaid" min="0" placeholder="0"
                                     class="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                             </div>
+                            {{-- Split Payment Inputs --}}
+                            <div class="space-y-3 pt-2 border-t border-slate-200 mt-2" x-show="isSplit">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Detail Split
+                                    Payment</p>
+                                <div class="flex items-center gap-3">
+                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Tunai</label>
+                                    <input type="number" name="split_cash" x-model.number="splitCash" min="0"
+                                        placeholder="0"
+                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Transfer</label>
+                                    <input type="number" name="split_transfer" x-model.number="splitTransfer" min="0"
+                                        placeholder="0"
+                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">QRIS</label>
+                                    <input type="number" name="split_qris" x-model.number="splitQris" min="0"
+                                        placeholder="0"
+                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                                </div>
+                                <div class="flex justify-between items-center text-xs font-black pt-1 px-1">
+                                    <span class="text-slate-400">Total Dibayar</span>
+                                    <span :class="totalPaid() < total() ? 'text-red-500' : 'text-green-600'"
+                                        x-text="'Rp ' + formatNum(totalPaid())"></span>
+                                </div>
+                            </div>
                             {{-- Change --}}
                             <div class="flex justify-between text-sm bg-green-50 rounded-xl px-4 py-2"
-                                x-show="change() >= 0 && amountPaid > 0">
+                                x-show="change() >= 0 && totalPaid() > 0">
                                 <span class="text-green-700 font-bold">Kembalian</span>
                                 <span class="font-black text-green-700" x-text="'Rp ' + formatNum(change())"></span>
                             </div>
@@ -152,16 +180,30 @@
                         {{-- Payment Method & Info --}}
                         <div class="px-6 pb-4 space-y-4">
                             <div>
-                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Metode
-                                    Bayar</label>
-                                <div class="grid grid-cols-3 gap-2">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Metode
+                                        Bayar</label>
+                                    <button type="button"
+                                        @click="isSplit = !isSplit; paymentMethod = isSplit ? 'split' : 'cash'"
+                                        class="text-[10px] font-black px-2 py-1 rounded-lg transition-all"
+                                        :class="isSplit ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'">
+                                        <span x-text="isSplit ? '✕ Matikan Split' : '+ Split Payment'"></span>
+                                    </button>
+                                </div>
+                                <input type="hidden" name="payment_method" :value="paymentMethod">
+                                <div class="grid grid-cols-3 gap-2" x-show="!isSplit">
                                     @foreach(['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS'] as $val => $label)
                                         <label class="relative cursor-pointer">
-                                            <input type="radio" name="payment_method" value="{{ $val }}" {{ $val === 'cash' ? 'checked' : '' }} class="peer sr-only">
+                                            <input type="radio" x-model="paymentMethod" value="{{ $val }}" class="peer sr-only">
                                             <span
                                                 class="block text-center rounded-xl py-2.5 text-xs font-black border border-slate-200 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-700 text-slate-500 hover:border-slate-300 transition-all">{{ $label }}</span>
                                         </label>
                                     @endforeach
+                                </div>
+                                <div x-show="isSplit"
+                                    class="rounded-xl bg-indigo-50 border border-indigo-100 p-3 text-center">
+                                    <p class="text-xs font-black text-indigo-700">Mode Split Payment Aktif</p>
+                                    <p class="text-[10px] text-indigo-400 font-medium">Input jumlah bayar di bagian atas</p>
                                 </div>
                             </div>
 
@@ -169,7 +211,8 @@
                                 <div>
                                     <label
                                         class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Kasir</label>
-                                    <input type="text" name="cashier_name" required placeholder="Nama kasir"
+                                    <input type="text" name="cashier_name" value="{{ auth()->user()->name }}" required
+                                        placeholder="Nama kasir"
                                         class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 <div>
@@ -181,16 +224,21 @@
                             </div>
 
                             <div>
-                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Catat ke Akun Keuangan <span class="text-red-400">*</span></label>
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Catat
+                                    ke Akun Keuangan <span class="text-red-400">*</span></label>
                                 @if($accounts->isEmpty())
-                                    <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs font-bold text-amber-700">
-                                        ⚠ Belum ada akun keuangan untuk toko ini. <a href="{{ route('stores.finance.accounts.index', $store) }}" class="underline">Buat akun dahulu</a>.
+                                    <div
+                                        class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs font-bold text-amber-700">
+                                        ⚠ Belum ada akun keuangan untuk toko ini. <a
+                                            href="{{ route('stores.finance.accounts.index', $store) }}" class="underline">Buat
+                                            akun dahulu</a>.
                                     </div>
                                 @else
                                     <select name="finance_account_id" required
                                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                                         @foreach($accounts as $acc)
-                                            <option value="{{ $acc->id }}">{{ $acc->name }} — Rp {{ number_format($acc->balance, 0, ',', '.') }}</option>
+                                            <option value="{{ $acc->id }}">{{ $acc->name }} — Rp
+                                                {{ number_format($acc->balance, 0, ',', '.') }}</option>
                                         @endforeach
                                     </select>
                                 @endif
@@ -215,6 +263,11 @@
                 cart: [],
                 discount: 0,
                 amountPaid: 0,
+                splitCash: 0,
+                splitTransfer: 0,
+                splitQris: 0,
+                isSplit: false,
+                paymentMethod: 'cash',
                 search: '',
 
                 addItem(id, name, sku, price, stock) {
@@ -246,8 +299,15 @@
                     return Math.max(0, this.subtotal() - (this.discount || 0));
                 },
 
+                totalPaid() {
+                    if (this.isSplit) {
+                        return (this.splitCash || 0) + (this.splitTransfer || 0) + (this.splitQris || 0);
+                    }
+                    return this.amountPaid || 0;
+                },
+
                 change() {
-                    return Math.max(0, (this.amountPaid || 0) - this.total());
+                    return Math.max(0, this.totalPaid() - this.total());
                 },
 
                 formatNum(n) {
