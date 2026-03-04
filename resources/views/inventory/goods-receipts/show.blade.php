@@ -64,24 +64,47 @@
                                 Product Name</th>
                             <th scope="col"
                                 class="px-3 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                Purchase Price</th>
+                            <th scope="col"
+                                class="px-3 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
                                 Quantity</th>
+                            <th scope="col"
+                                class="px-8 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                Subtotal</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
+                        @php $grandTotal = 0; @endphp
                         @foreach($goodsReceipt->items as $item)
+                            @php 
+                                $subtotal = $item->quantity * $item->purchase_price;
+                                $grandTotal += $subtotal;
+                            @endphp
                             <tr class="hover:bg-slate-50/30 transition-colors text-sm">
-                                <td class="whitespace-nowrap py-4 pl-8 pr-3 font-mono font-medium text-indigo-600">
+                                <td class="whitespace-nowrap py-4 pl-8 pr-3 font-mono font-medium text-indigo-600 border-l-4 border-indigo-600">
                                     {{ $item->product->sku }}
                                 </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-slate-600">
+                                <td class="whitespace-nowrap px-3 py-4 text-slate-600 font-medium">
                                     {{ $item->product->name }}
                                 </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-right text-slate-600 font-bold">
+                                    Rp {{ number_format($item->purchase_price, 0, ',', '.') }}
+                                </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-right font-bold text-slate-900">
-                                    {{ number_format($item->quantity, 2) }} {{ $item->product->unit }}
+                                    {{ number_format($item->quantity, 0, ',', '.') }} {{ $item->product->unit }}
+                                </td>
+                                <td class="whitespace-nowrap px-8 py-4 text-right font-black text-indigo-600">
+                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot class="bg-indigo-50/30">
+                        <tr>
+                            <td colspan="4" class="py-6 pl-8 text-right text-sm font-bold text-slate-500 uppercase tracking-widest">Total Bayar</td>
+                            <td class="py-6 px-8 text-right text-xl font-black text-indigo-700">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 

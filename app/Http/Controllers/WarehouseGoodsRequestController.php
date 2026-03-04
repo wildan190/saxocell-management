@@ -31,11 +31,14 @@ class WarehouseGoodsRequestController extends Controller
             'current_status' => $goodsRequest->status
         ]);
 
-        $goodsRequest->update(['status' => 'confirmed']);
+        $goodsRequest->update([
+            'status' => 'confirmed',
+            'confirmed_by' => auth()->user()->name,
+        ]);
 
         \Log::info('Goods request confirmed', [
             'goods_request_id' => $goodsRequest->id,
-            'new_status' => $goodsRequest->fresh()->status
+            'new_status' => $goodsRequest->fresh()->status,
         ]);
 
         return redirect()->back()->with('success', 'Request confirmed.');
@@ -65,7 +68,10 @@ class WarehouseGoodsRequestController extends Controller
                     $inventory->decrement('quantity', $item->quantity);
                 }
 
-                $goodsRequest->update(['status' => 'shipped']);
+                $goodsRequest->update([
+                    'status' => 'shipped',
+                    'shipped_by' => auth()->user()->name,
+                ]);
             });
 
             \Log::info('Goods request shipped successfully', ['id' => $goodsRequest->id]);

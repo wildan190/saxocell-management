@@ -22,43 +22,70 @@
                     <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{{ date('l, d F Y') }}</p>
                 </div>
 
-                <div class="flex gap-4 w-full md:w-auto">
-                    @if(!$todayAttendance || !$todayAttendance->clock_in)
-                        <form action="{{ route('ess.attendance.clock-in') }}" method="POST" class="w-full">
-                            @csrf
-                            <button type="submit"
+                <div class="flex flex-col gap-6 w-full md:w-auto">
+                    <!-- Camera Preview -->
+                    <div id="camera-container"
+                        class="hidden relative w-full md:w-80 aspect-video bg-slate-100 rounded-3xl overflow-hidden ring-4 ring-indigo-50 border border-slate-200">
+                        <video id="video" class="w-full h-full object-cover" autoplay playsinline></video>
+                        <canvas id="canvas" class="hidden"></canvas>
+                        <div class="absolute inset-x-0 bottom-4 flex justify-center">
+                            <button type="button" id="capture-btn"
+                                class="bg-indigo-600 hover:bg-slate-900 text-white font-black px-6 py-2 rounded-2xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-[10px]">
+                                Capture & Confirm
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="action-buttons" class="flex gap-4 w-full">
+                        @if(!$todayAttendance || !$todayAttendance->clock_in)
+                            <button type="button" onclick="startCamera('in')"
                                 class="w-full inline-flex items-center justify-center rounded-3xl bg-indigo-600 px-10 py-5 text-lg font-black text-white shadow-xl shadow-indigo-200 hover:bg-slate-900 transition-all active:scale-95 uppercase tracking-widest">
                                 Clock In
                             </button>
-                        </form>
-                    @elseif(!$todayAttendance->clock_out)
-                        <form action="{{ route('ess.attendance.clock-out') }}" method="POST" class="w-full">
-                            @csrf
-                            <button type="submit"
+                        @elseif(!$todayAttendance->clock_out)
+                            <button type="button" onclick="startCamera('out')"
                                 class="w-full inline-flex items-center justify-center rounded-3xl bg-rose-600 px-10 py-5 text-lg font-black text-white shadow-xl shadow-rose-200 hover:bg-slate-900 transition-all active:scale-95 uppercase tracking-widest">
                                 Clock Out
                             </button>
-                        </form>
-                    @else
-                        <div
-                            class="px-8 py-5 rounded-3xl bg-slate-50 border border-slate-100 text-slate-400 font-black uppercase tracking-widest text-sm">
-                            Work Completed
-                        </div>
-                    @endif
+                        @else
+                            <div
+                                class="w-full px-8 py-5 rounded-3xl bg-slate-50 border border-slate-100 text-slate-400 font-black uppercase tracking-widest text-sm text-center">
+                                Work Completed
+                            </div>
+                        @endif
+                    </div>
+
+                    <form id="attendance-form" action="" method="POST" class="hidden">
+                        @csrf
+                        <input type="hidden" name="image" id="image-input">
+                        <input type="hidden" name="location" id="location-input">
+                    </form>
                 </div>
             </div>
 
             @if($todayAttendance)
                 <div class="mt-12 grid grid-cols-2 gap-4 border-t border-slate-50 pt-8">
-                    <div class="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Clocked In At</p>
-                        <p class="text-2xl font-black text-emerald-900 tabular-nums">{{ $todayAttendance->clock_in ?? '--:--' }}
-                        </p>
+                    <div class="p-4 bg-emerald-50/50 rounded-3xl border border-emerald-100 relative overflow-hidden group">
+                        @if($todayAttendance->image_in)
+                            <img src="{{ asset('storage/' . $todayAttendance->image_in) }}"
+                                class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-100 transition-all duration-500">
+                        @endif
+                        <div class="relative">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Clocked In At</p>
+                            <p class="text-2xl font-black text-emerald-900 tabular-nums">
+                                {{ $todayAttendance->clock_in ?? '--:--' }}</p>
+                        </div>
                     </div>
-                    <div class="p-6 bg-rose-50/50 rounded-3xl border border-rose-100">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-rose-600 mb-1">Clocked Out At</p>
-                        <p class="text-2xl font-black text-rose-900 tabular-nums">{{ $todayAttendance->clock_out ?? '--:--' }}
-                        </p>
+                    <div class="p-4 bg-rose-50/50 rounded-3xl border border-rose-100 relative overflow-hidden group">
+                        @if($todayAttendance->image_out)
+                            <img src="{{ asset('storage/' . $todayAttendance->image_out) }}"
+                                class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-100 transition-all duration-500">
+                        @endif
+                        <div class="relative">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-rose-600 mb-1">Clocked Out At</p>
+                            <p class="text-2xl font-black text-rose-900 tabular-nums">
+                                {{ $todayAttendance->clock_out ?? '--:--' }}</p>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -95,6 +122,53 @@
     </div>
 
     <script>
+        let stream;
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const cameraContainer = document.getElementById('camera-container');
+        const actionButtons = document.getElementById('action-buttons');
+        const attendanceForm = document.getElementById('attendance-form');
+        const imageInput = document.getElementById('image-input');
+        const locationInput = document.getElementById('location-input');
+
+        async function startCamera(type) {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+                video.srcObject = stream;
+                cameraContainer.classList.remove('hidden');
+                actionButtons.classList.add('hidden');
+                
+                attendanceForm.action = type === 'in' ? "{{ route('ess.attendance.clock-in') }}" : "{{ route('ess.attendance.clock-out') }}";
+                
+                // Get location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        locationInput.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                alert("Please allow camera access to clock in/out.");
+            }
+        }
+
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = canvas.toDataURL('image/jpeg');
+            imageInput.value = imageData;
+            
+            // Stop stream
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Submit form
+            attendanceForm.submit();
+        });
+
         function updateClock() {
             const now = new Date();
             const time = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });

@@ -116,7 +116,22 @@
                         @error('allowance') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="overtime_rate"
+                            class="block text-xs font-black uppercase tracking_widest text-slate-400 mb-2 ml-1">Overtime
+                            Rate (Per Hour)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                                <span class="text-slate-500 sm:text-sm font-bold">Rp</span>
+                            </div>
+                            <input id="overtime_rate" name="overtime_rate" type="number"
+                                class="block w-full rounded-2xl border-0 py-4 pl-14 pr-6 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm transition-all @error('overtime_rate') ring-red-500 @enderror"
+                                placeholder="0" value="{{ old('overtime_rate', 0) }}">
+                        </div>
+                        @error('overtime_rate') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="md:col-span-1 flex items-end pb-4">
                         <label
                             class="relative flex items-center p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-all">
                             <input type="checkbox" name="tax_pph21" value="1"

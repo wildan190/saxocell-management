@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['sku', 'name', 'unit', 'description'];
+    protected $fillable = ['sku', 'name', 'unit', 'description', 'purchase_price', 'selling_price'];
 
     public function inventories()
     {
@@ -16,5 +16,10 @@ class Product extends Model
     public function receiptItems()
     {
         return $this->hasMany(GoodsReceiptItem::class);
+    }
+
+    public function priceHistories()
+    {
+        return $this->hasMany(ProductPriceHistory::class)->latest();
     }
 }

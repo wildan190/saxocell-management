@@ -40,8 +40,11 @@ class StorePosController extends Controller
     {
         $request->validate([
             'cashier_name' => 'required|string|max:255',
-            'payment_method' => 'required|in:cash,transfer,qris',
-            'amount_paid' => 'required|numeric|min:0',
+            'payment_method' => 'required|in:cash,transfer,qris,split',
+            'amount_paid' => 'nullable|numeric|min:0',
+            'split_cash' => 'nullable|numeric|min:0',
+            'split_transfer' => 'nullable|numeric|min:0',
+            'split_qris' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'customer_name' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
@@ -79,10 +82,35 @@ class StorePosController extends Controller
             }
 
             $total = max(0, $subtotal - $discount);
-            $amountPaid = $request->amount_paid;
-            $change = max(0, $amountPaid - $total);
             $payLabels = ['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS'];
             $txNumber = 'POS-' . strtoupper($store->id . '-' . now()->format('YmdHis'));
+
+            // ── Split Payment logic ───────────────────────────────────────
+            $paymentSplits = null;
+            $payNoteDetail = '';
+
+            if ($request->payment_method === 'split') {
+                $splits = [];
+                foreach ($payLabels as $key => $label) {
+                    $amt = (float) ($request->input('split_' . $key) ?? 0);
+                    if ($amt > 0) {
+                        $splits[] = ['method' => $key, 'label' => $label, 'amount' => $amt];
+                    }
+                }
+                $amountPaid = collect($splits)->sum('amount');
+                if ($amountPaid < $total) {
+                    abort(422, 'Total split (Rp ' . number_format($amountPaid, 0, ',', '.') . ') kurang dari total transaksi.');
+                }
+                $paymentSplits = $splits;
+                $payNoteDetail = collect($splits)
+                    ->map(fn($s) => $s['label'] . ' Rp ' . number_format($s['amount'], 0, ',', '.'))
+                    ->join(' + ');
+            } else {
+                $amountPaid = (float) $request->amount_paid;
+                $payNoteDetail = $payLabels[$request->payment_method] ?? $request->payment_method;
+            }
+
+            $change = max(0, $amountPaid - $total);
 
             $transaction = PosTransaction::create([
                 'store_id' => $store->id,
@@ -90,6 +118,7 @@ class StorePosController extends Controller
                 'cashier_name' => $request->cashier_name,
                 'customer_name' => $request->customer_name,
                 'payment_method' => $request->payment_method,
+                'payment_splits' => $paymentSplits,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'total_amount' => $total,
@@ -115,7 +144,7 @@ class StorePosController extends Controller
                 'type' => 'income',
                 'amount' => $total,
                 'transaction_date' => now()->toDateString(),
-                'notes' => 'Bayar: ' . ($payLabels[$request->payment_method] ?? $request->payment_method)
+                'notes' => 'Bayar: ' . $payNoteDetail
                     . ($request->notes ? ' | ' . $request->notes : ''),
                 'is_admin_fee' => false,
             ]);

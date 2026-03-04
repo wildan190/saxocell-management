@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoodsReceipt extends Model
 {
-    protected $fillable = ['warehouse_id', 'receipt_number', 'received_date', 'sender_name', 'notes'];
+    protected $fillable = ['warehouse_id', 'receipt_number', 'received_date', 'sender_name', 'received_by', 'notes'];
 
     public function warehouse()
     {

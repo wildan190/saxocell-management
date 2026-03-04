@@ -14,6 +14,9 @@ class StoreToStoreTransfer extends Model
         'notes',
         'shipped_at',
         'received_at',
+        'created_by',
+        'shipped_by',
+        'received_by',
     ];
 
     protected $casts = [

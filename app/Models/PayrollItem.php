@@ -11,7 +11,9 @@ class PayrollItem extends Model
         'user_id',
         'basic_salary',
         'total_days',
+        'overtime_hours',
         'allowance',
+        'overtime_pay',
         'deductions',
         'net_salary',
     ];

@@ -60,6 +60,8 @@
                                 <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Kasir</th>
                                 <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
+                                    Produk</th>
+                                <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Pembayaran</th>
                                 <th class="text-right px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Total</th>
@@ -77,6 +79,20 @@
                                     </td>
                                     <td class="px-6 py-4 font-medium text-slate-700">{{ $tx->cashier_name }}</td>
                                     <td class="px-6 py-4">
+                                        <div class="max-w-[200px] truncate group relative">
+                                            <span class="text-xs font-bold text-slate-600">
+                                                {{ $tx->items->pluck('product_name')->join(', ') }}
+                                            </span>
+                                            {{-- Tooltip style detail for longer lists --}}
+                                            @if($tx->items->count() > 2)
+                                                <div
+                                                    class="hidden group-hover:block absolute z-10 bg-slate-900 text-white p-2 rounded-lg text-[10px] w-48 shadow-xl">
+                                                    {{ $tx->items->pluck('product_name')->join(', ') }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
                                         @php
                                             $payBadge = ['cash' => 'bg-green-50 text-green-700', 'transfer' => 'bg-blue-50 text-blue-700', 'qris' => 'bg-purple-50 text-purple-700'];
                                             $payLabel = ['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS'];
@@ -87,9 +103,11 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right font-black text-slate-900">Rp
-                                        {{ number_format($tx->total_amount, 0, ',', '.') }}</td>
+                                        {{ number_format($tx->total_amount, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-6 py-4 text-slate-500 text-xs font-medium">
-                                        {{ $tx->created_at->format('d M Y H:i') }}</td>
+                                        {{ $tx->created_at->format('d M Y H:i') }}
+                                    </td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('stores.pos.show', [$store, $tx]) }}"
                                             class="inline-flex items-center gap-1 text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors">

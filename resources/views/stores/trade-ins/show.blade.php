@@ -86,7 +86,8 @@
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Harga Beli</p>
                         <p class="font-black text-green-700 text-lg">Rp
-                            {{ number_format($tradeIn->purchase_price, 0, ',', '.') }}</p>
+                            {{ number_format($tradeIn->purchase_price, 0, ',', '.') }}
+                        </p>
                     </div>
                 @endif
                 @if($tradeIn->status === 'rejected' && $tradeIn->rejection_reason)
@@ -105,6 +106,17 @@
                 <div class="bg-slate-50 rounded-2xl px-4 py-4">
                     <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Catatan Kondisi</p>
                     <p class="text-sm font-medium text-slate-700">{{ $tradeIn->condition_notes }}</p>
+                </div>
+            @endif
+
+            @if($tradeIn->desired_product)
+                <div class="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-4">
+                    <p class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-2">Produk yang Diinginkan
+                        Pelanggan</p>
+                    <p class="text-sm font-black text-indigo-900">{{ $tradeIn->desired_product }}</p>
+                    @if($tradeIn->desired_product_notes)
+                        <p class="text-xs font-medium text-indigo-600 mt-1">{{ $tradeIn->desired_product_notes }}</p>
+                    @endif
                 </div>
             @endif
         </div>
@@ -130,20 +142,22 @@
                         </div>
                         <div>
                             <label class="block text-xs font-black text-green-700 mb-1">Ditangani Oleh</label>
-                            <input type="text" name="handled_by" placeholder="Nama staff"
+                            <input type="text" name="handled_by" value="{{ auth()->user()->name }}" placeholder="Nama staff"
                                 class="w-full rounded-xl border border-green-200 bg-white px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500">
                         </div>
                         <div>
                             <label class="block text-xs font-black text-green-700 mb-1">Catat Pengeluaran ke Akun *</label>
                             @if($accounts->isEmpty())
-                                <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-700">
+                                <div
+                                    class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-700">
                                     ⚠ Belum ada akun keuangan.
                                 </div>
                             @else
                                 <select name="finance_account_id" required
                                     class="w-full rounded-xl border border-green-200 bg-white px-3 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-green-500">
                                     @foreach($accounts as $acc)
-                                        <option value="{{ $acc->id }}">{{ $acc->name }} — Rp {{ number_format($acc->balance, 0, ',', '.') }}</option>
+                                        <option value="{{ $acc->id }}">{{ $acc->name }} — Rp
+                                            {{ number_format($acc->balance, 0, ',', '.') }}</option>
                                     @endforeach
                                 </select>
                             @endif

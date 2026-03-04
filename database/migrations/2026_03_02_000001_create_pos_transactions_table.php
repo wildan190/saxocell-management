@@ -13,7 +13,8 @@ return new class extends Migration {
             $table->string('transaction_number')->unique();
             $table->string('cashier_name');
             $table->string('customer_name')->nullable();
-            $table->enum('payment_method', ['cash', 'transfer', 'qris'])->default('cash');
+            $table->string('payment_method')->default('cash'); // cash|transfer|qris|split
+            $table->text('payment_splits')->nullable();         // JSON: [{method,amount},...] for split payments
             $table->decimal('subtotal', 15, 2)->default(0);
             $table->decimal('discount', 15, 2)->default(0);
             $table->decimal('total_amount', 15, 2)->default(0);

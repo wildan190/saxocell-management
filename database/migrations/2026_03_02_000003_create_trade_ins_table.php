@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->string('imei')->nullable();
             $table->enum('condition', ['excellent', 'good', 'fair', 'poor'])->default('good');
             $table->text('condition_notes')->nullable();
+            $table->string('desired_product')->nullable();
+            $table->text('desired_product_notes')->nullable();
             $table->decimal('assessed_value', 15, 2)->nullable();
             $table->decimal('purchase_price', 15, 2)->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

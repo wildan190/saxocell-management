@@ -15,6 +15,7 @@ class Employee extends Model
         'jht',
         'bpjs',
         'overtime_eligible',
+        'overtime_rate',
         'onboarded_at',
     ];
 

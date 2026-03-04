@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use App\Models\PosTransaction;
+use App\Models\TradeIn;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
@@ -53,10 +55,33 @@ class StoreController extends Controller
         // 2. Inventory Context
         $storeProducts = $store->storeProducts()->with('product')->get();
 
-        // 3. Activity Context (Recent 5)
+        // 3. POS Context (Store Specific)
+        $todayPosRevenue = PosTransaction::where('store_id', $store->id)
+            ->whereDate('created_at', today())
+            ->sum('total_amount');
+
+        $recentPosTransactions = PosTransaction::where('store_id', $store->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // 4. Trade-In Context (Store Specific)
+        $pendingTradeInsCount = TradeIn::where('store_id', $store->id)
+            ->where('status', 'pending')
+            ->count();
+
+        $recentTradeIns = TradeIn::where('store_id', $store->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // 5. Activity Context (Recent 5)
         $recentTransactions = $store->financeAccounts()
-            ->with(['transactions' => function ($q) {
-                $q->latest()->take(10); }])
+            ->with([
+                'transactions' => function ($q) {
+                    $q->latest()->take(10);
+                }
+            ])
             ->get()
             ->flatMap->transactions
             ->sortByDesc('created_at')
@@ -73,6 +98,10 @@ class StoreController extends Controller
             'accounts',
             'totalBalance',
             'storeProducts',
+            'todayPosRevenue',
+            'recentPosTransactions',
+            'pendingTradeInsCount',
+            'recentTradeIns',
             'recentTransactions',
             'recentTransfers'
         ));

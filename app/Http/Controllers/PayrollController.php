@@ -43,41 +43,51 @@ class PayrollController extends Controller
             $employees = Employee::with('user')->get();
 
             foreach ($employees as $employee) {
-                // Calculate attendance-based salary
-                $daysPresent = Attendance::where('user_id', $employee->user_id)
+                // Get all attendances for the period
+                $attendances = Attendance::where('user_id', $employee->user_id)
                     ->whereBetween('date', [$request->period_start, $request->period_end])
                     ->whereNotNull('clock_in')
-                    ->count();
+                    ->whereNotNull('clock_out')
+                    ->get();
 
-                // Advanced calculation logic
+                $daysPresent = $attendances->count();
+                $totalOvertimeHours = 0;
+
+                if ($employee->overtime_eligible && $employee->overtime_rate > 0) {
+                    foreach ($attendances as $att) {
+                        $startTime = \Carbon\Carbon::parse($att->clock_in);
+                        $endTime = \Carbon\Carbon::parse($att->clock_out);
+                        $hoursWorked = $startTime->diffInHours($endTime);
+
+                        // Assuming standard shift is 8 hours. Anything more is overtime.
+                        if ($hoursWorked > 8) {
+                            $totalOvertimeHours += ($hoursWorked - 8);
+                        }
+                    }
+                }
+
                 $basicSalary = $employee->basic_salary;
-
-                // Scale salary based on presence (assuming 22 work days per month)
                 $effectiveBasic = ($daysPresent / 22) * $basicSalary;
-
                 $allowance = $employee->allowance ?? 0;
+                $overtimePay = $totalOvertimeHours * $employee->overtime_rate;
 
-                // Deductions logic
                 $deductions = 0;
                 if ($employee->tax_pph21)
-                    $deductions += $effectiveBasic * 0.05; // 5% PPH21
+                    $deductions += $effectiveBasic * 0.05;
                 if ($employee->jht)
-                    $deductions += $effectiveBasic * 0.02;       // 2% JHT
+                    $deductions += $effectiveBasic * 0.02;
                 if ($employee->bpjs)
-                    $deductions += $effectiveBasic * 0.01;      // 1% BPJS
-
-                // Overtime bonus
-                if ($employee->overtime_eligible && $daysPresent > 20) {
-                    $allowance += $basicSalary * 0.1; // 10% bonus for good attendance
-                }
+                    $deductions += $effectiveBasic * 0.01;
 
                 $payroll->items()->create([
                     'user_id' => $employee->user_id,
                     'basic_salary' => $basicSalary,
                     'total_days' => $daysPresent,
+                    'overtime_hours' => $totalOvertimeHours,
                     'allowance' => $allowance,
+                    'overtime_pay' => $overtimePay,
                     'deductions' => $deductions,
-                    'net_salary' => $effectiveBasic + $allowance - $deductions,
+                    'net_salary' => $effectiveBasic + $allowance + $overtimePay - $deductions,
                 ]);
             }
         });

@@ -173,12 +173,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/warehouse-to-store', [WarehouseStoreTransferController::class, 'store'])->name('inventory.warehouse-to-store.store');
     Route::get('/inventory/warehouse-to-store/{transfer}', [WarehouseStoreTransferController::class, 'show'])->name('inventory.warehouse-to-store.show');
 
-    // Stock Opname (Global)
     Route::get('/inventory/opname', [StockOpnameController::class, 'index'])->name('inventory.opname.index');
     Route::get('/inventory/opname/create', [StockOpnameController::class, 'create'])->name('inventory.opname.create');
     Route::post('/inventory/opname', [StockOpnameController::class, 'store'])->name('inventory.opname.store');
     Route::get('/inventory/opname/{opname}', [StockOpnameController::class, 'show'])->name('inventory.opname.show');
-    Route::post('/inventory/opname/{opname}/items', [StockOpnameController::class, 'storeItem'])->name('inventory.opname.items.store');
+    Route::get('/inventory/opname/{opname}/scan', [StockOpnameController::class, 'scan'])->name('inventory.opname.scan');
+    Route::post('/inventory/opname/{opname}/update-item', [StockOpnameController::class, 'updateItem'])->name('inventory.opname.update-item');
     Route::post('/inventory/opname/{opname}/complete', [StockOpnameController::class, 'complete'])->name('inventory.opname.complete');
 
     // Admin Orders
