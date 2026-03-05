@@ -150,7 +150,7 @@
                                 <div class="space-y-1">
                                     <div class="flex items-center justify-between">
                                         <p class="text-[10px] font-black uppercase tracking-widest text-indigo-300">{{ $log->activity }}</p>
-                                        <p class="text-[9px] font-bold text-indigo-500">{{ $log->created_at->diffForHumans() }}</p>
+                                        <p class="text-[9px] font-bold text-indigo-500">{{ $log->created_at->format('H:i') }} WIB</p>
                                     </div>
                                     <p class="text-sm font-medium text-white">{{ $log->notes }}</p>
                                     <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">By {{ $log->user->name }}</p>
