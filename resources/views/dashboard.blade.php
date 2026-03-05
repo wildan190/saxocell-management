@@ -117,12 +117,14 @@
                                             <div>
                                                 <p class="text-sm font-black text-slate-900">{{ $pos->transaction_number }}</p>
                                                 <p class="text-xs text-slate-500 font-medium">{{ $pos->store->name }} •
-                                                    {{ $pos->created_at->format('H:i') }} WIB</p>
+                                                    {{ $pos->created_at->format('H:i') }} WIB
+                                                </p>
                                             </div>
                                         </div>
                                         <div class="text-right">
                                             <p class="text-sm font-black text-indigo-600">Rp
-                                                {{ number_format($pos->total_amount, 0, ',', '.') }}</p>
+                                                {{ number_format($pos->total_amount, 0, ',', '.') }}
+                                            </p>
                                             <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $pos->payment_method }}</p>
                                         </div>
                                     </li>
@@ -150,34 +152,36 @@
                         <div class="flow-root">
                             <ul role="list" class="-my-6 divide-y divide-slate-50">
                                 @foreach($recentTradeIns as $ti)
-                                                    <li class="py-6 flex items-center justify-between">
-                                                        <div class="flex items-center gap-4">
-                                                            <div
-                                                                class="h-10 w-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 transition-colors">
-                                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                                    stroke-width="2">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                                                                </svg>
-                                                            </div>
-                                                            <div>
-                                                                <p class="text-sm font-black text-slate-900">{{ $ti->device_name }}</p>
-                                                                <p class="text-xs text-slate-500 font-medium">{{ $ti->store->name }} •
-                                                                    {{ $ti->customer_name }}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="text-right">
-                                                            @php
-                                                                $statusColors = ['pending' => 'bg-amber-100 text-amber-700', 'approved' => 'bg-green-100 text-green-700', 'rejected' => 'bg-red-100 text-red-700'];
-                                                            @endphp
-                                     <span
-                                                                class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight {{ $statusColors[$ti->status] ?? 'bg-slate-100 text-slate-600' }}">
-                                                                {{ $ti->status }}
-                                                            </span>
-                                                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">
-                                                                {{ $ti->created_at->format('H:i') }} WIB</p>
-                                                        </div>
-                                                    </li>
+                                    <li class="py-6 flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="h-10 w-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 transition-colors">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-slate-900">{{ $ti->device_name }}</p>
+                                                <p class="text-xs text-slate-500 font-medium">{{ $ti->store->name }} •
+                                                    {{ $ti->customer_name }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            @php
+                                                $statusColors = ['pending' => 'bg-amber-100 text-amber-700', 'approved' => 'bg-green-100 text-green-700', 'rejected' => 'bg-red-100 text-red-700'];
+                                            @endphp
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight {{ $statusColors[$ti->status] ?? 'bg-slate-100 text-slate-600' }}">
+                                                {{ $ti->status }}
+                                            </span>
+                                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">
+                                                {{ $ti->created_at->format('H:i') }} WIB
+                                            </p>
+                                        </div>
+                                    </li>
                                 @endforeach
                             </ul>
                         </div>
@@ -190,51 +194,6 @@
             </div>
         </div>
 
-        <!-- Stock Alerts -->
-        <div class="bg-rose-50/50 rounded-[40px] px-8 py-10 ring-1 ring-rose-100">
-            <h3 class="text-xl font-black text-rose-900 mb-8 flex items-center gap-3">
-                <svg class="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-                Peringatan Stok Rendah
-            </h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Store Low Stock --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-rose-100/50">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Stock Tipis di Toko</h4>
-                    @forelse($lowStockStore as $ls)
-                        <div class="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
-                            <div>
-                                <p class="text-sm font-black text-slate-900">{{ $ls->product->name }}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                                    {{ $ls->store->name }}</p>
-                            </div>
-                            <span class="text-sm font-black text-rose-600">{{ $ls->stock }} Unit</span>
-                        </div>
-                    @empty
-                        <p class="text-sm font-medium text-slate-500 italic py-4">Stok toko masih aman.</p>
-                    @endforelse
-                </div>
-
-                {{-- Warehouse Low Stock --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-rose-100/50">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Stock Tipis di Gudang</h4>
-                    @forelse($lowStockWarehouse as $lw)
-                        <div class="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
-                            <div>
-                                <p class="text-sm font-black text-slate-900">{{ $lw->product->name }}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                                    {{ $lw->warehouse->name }}</p>
-                            </div>
-                            <span class="text-sm font-black text-rose-600">{{ $lw->quantity }} Unit</span>
-                        </div>
-                    @empty
-                        <p class="text-sm font-medium text-slate-500 italic py-4">Stok gudang masih aman.</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
     </div>
 @endsection

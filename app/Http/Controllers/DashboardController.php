@@ -44,17 +44,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Critical Stock (Store + Warehouse)
-        $lowStockStore = StoreProduct::where('stock', '<=', 5)
-            ->with(['store', 'product'])
-            ->take(5)
-            ->get();
-
-        $lowStockWarehouse = Inventory::where('quantity', '<=', 10)
-            ->with(['warehouse', 'product'])
-            ->take(5)
-            ->get();
-
         return view('dashboard', compact(
             'totalStores',
             'totalWarehouses',
@@ -64,9 +53,7 @@ class DashboardController extends Controller
             'todayPosCount',
             'pendingTradeIns',
             'recentPosTransactions',
-            'recentTradeIns',
-            'lowStockStore',
-            'lowStockWarehouse'
+            'recentTradeIns'
         ));
     }
 }
