@@ -6,13 +6,20 @@
             <div class="sm:flex-auto">
                 <nav class="flex mb-2" aria-label="Breadcrumb">
                     <ol class="flex items-center space-x-2 text-sm text-slate-500">
-                        <li><a href="{{ route('warehouses.index') }}" class="hover:text-slate-700">Warehouses</a></li>
+                        <li><a href="{{ route('stores.index') }}" class="hover:text-slate-700">Stores</a></li>
                         <li><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
                                     clip-rule="evenodd" />
                             </svg></li>
-                        <li><a href="{{ route('inventory.goods-receipts.index', $warehouse) }}"
+                        <li><a href="{{ route('stores.show', $store) }}" class="hover:text-slate-700">{{ $store->name }}</a>
+                        </li>
+                        <li><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                    clip-rule="evenodd" />
+                            </svg></li>
+                        <li><a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
                                 class="hover:text-slate-700">Goods Receipts</a></li>
                         <li><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
@@ -22,9 +29,9 @@
                         <li class="font-medium text-slate-900">{{ $goodsReceipt->receipt_number }}</li>
                     </ol>
                 </nav>
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-slate-900">Receipt Details</h1>
-                <p class="mt-2 text-sm text-slate-700">Detailed summary of goods received at <span
-                        class="font-semibold text-indigo-600">{{ $warehouse->name }}</span>.</p>
+                <h1 class="text-3xl font-bold leading-tight tracking-tight text-slate-900">Store Receipt Details</h1>
+                <p class="mt-2 text-sm text-slate-700">Detailed summary of goods received at Store <span
+                        class="font-semibold text-indigo-600">{{ $store->name }}</span>.</p>
             </div>
         </div>
 
@@ -49,7 +56,8 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Admin Fee</p>
-                        <p class="text-lg font-bold text-slate-900">Rp {{ number_format($goodsReceipt->admin_fee, 0, ',', '.') }}</p>
+                        <p class="text-lg font-bold text-slate-900">Rp
+                            {{ number_format($goodsReceipt->admin_fee, 0, ',', '.') }}</p>
                     </div>
                 </div>
                 @if($goodsReceipt->notes)
@@ -84,12 +92,13 @@
                     <tbody class="divide-y divide-slate-100 bg-white">
                         @php $grandTotal = 0; @endphp
                         @foreach($goodsReceipt->items as $item)
-                            @php 
+                            @php
                                 $subtotal = $item->quantity * $item->purchase_price;
                                 $grandTotal += $subtotal;
                             @endphp
                             <tr class="hover:bg-slate-50/30 transition-colors text-sm">
-                                <td class="whitespace-nowrap py-4 pl-8 pr-3 font-mono font-medium text-indigo-600 border-l-4 border-indigo-600">
+                                <td
+                                    class="whitespace-nowrap py-4 pl-8 pr-3 font-mono font-medium text-indigo-600 border-l-4 border-indigo-600">
                                     {{ $item->product->sku }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-slate-600 font-medium">
@@ -109,34 +118,18 @@
                     </tbody>
                     <tfoot class="bg-indigo-50/30">
                         <tr>
-                            <td colspan="4" class="py-6 pl-8 text-right text-sm font-bold text-slate-500 uppercase tracking-widest">Total Bayar</td>
-                            <td class="py-6 px-8 text-right text-xl font-black text-indigo-700">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
+                            <td colspan="4"
+                                class="py-6 pl-8 text-right text-sm font-bold text-slate-500 uppercase tracking-widest">Total
+                                Bayar</td>
+                            <td class="py-6 px-8 text-right text-xl font-black text-indigo-700">Rp
+                                {{ number_format($grandTotal, 0, ',', '.') }}</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
             <div class="p-8 bg-slate-50/50 border-t border-slate-100 flex justify-end space-x-3">
-                @if($goodsReceipt->returns->count() > 0)
-                    @php $firstReturn = $goodsReceipt->returns->first(); @endphp
-                    <div class="flex items-center space-x-4 pr-4 border-r border-slate-200">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rejection Status:</span>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                            {{ ucfirst($firstReturn->status) }}
-                        </span>
-                    </div>
-                    <a href="{{ route('inventory.goods-returns.show', [$warehouse, $firstReturn]) }}"
-                        class="rounded-xl bg-amber-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500 transition-all">
-                        View Rejection Details
-                    </a>
-                @else
-                    <a href="{{ route('inventory.goods-returns.create', [$warehouse, $goodsReceipt]) }}"
-                        class="rounded-xl bg-red-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition-all">
-                        Return Goods / Rejected
-                    </a>
-                @endif
-                <a href="{{ route('inventory.goods-receipts.index', $warehouse) }}"
+                <a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
                     class="rounded-xl bg-slate-900 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all">
                     Back to List
                 </a>

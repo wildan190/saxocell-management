@@ -35,6 +35,35 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Expenses -->
+            <div
+                class="bg-white rounded-[40px] shadow-sm ring-1 ring-slate-100 overflow-hidden border border-slate-50 flex flex-col">
+                <div class="px-10 py-8 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tighter">Operational Costs</h2>
+                    <span class="text-rose-600 font-black tabular-nums">- Rp
+                        {{ number_format($totalExpenses, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex-1 p-10">
+                    <ul class="space-y-6">
+                        @forelse($expenses as $exp)
+                            <li class="flex justify-between items-center group">
+                                <span
+                                    class="text-sm font-black text-slate-600 uppercase tracking-widest group-hover:text-slate-900 transition-colors">{{ $exp->category }}</span>
+                                <span class="text-sm font-bold tabular-nums text-slate-900 italic">Rp
+                                    {{ number_format($exp->total, 0, ',', '.') }}</span>
+                            </li>
+                        @empty
+                            <li class="py-10 text-center text-slate-400 italic">No expenses recorded in this period.</li>
+                        @endforelse
+                    </ul>
+                </div>
+                <div class="px-10 py-8 bg-rose-50/30 border-t border-rose-100 flex justify-between items-center italic">
+                    <span class="text-xs font-black uppercase tracking-widest text-rose-700">Total Outgoings</span>
+                    <span class="text-xl font-black text-rose-600 underline tabular-nums decoration-rose-200">Rp
+                        {{ number_format($totalExpenses, 0, ',', '.') }}</span>
+                </div>
+            </div>
+
             <!-- Revenue -->
             <div
                 class="bg-white rounded-[40px] shadow-sm ring-1 ring-slate-100 overflow-hidden border border-slate-50 flex flex-col">
@@ -62,35 +91,6 @@
                     <span class="text-xs font-black uppercase tracking-widest text-emerald-700">Total Income</span>
                     <span class="text-xl font-black text-emerald-600 underline tabular-nums decoration-emerald-200">Rp
                         {{ number_format($totalRevenue, 0, ',', '.') }}</span>
-                </div>
-            </div>
-
-            <!-- Expenses -->
-            <div
-                class="bg-white rounded-[40px] shadow-sm ring-1 ring-slate-100 overflow-hidden border border-slate-50 flex flex-col">
-                <div class="px-10 py-8 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tighter">Operational Costs</h2>
-                    <span class="text-rose-600 font-black tabular-nums">- Rp
-                        {{ number_format($totalExpenses, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex-1 p-10">
-                    <ul class="space-y-6">
-                        @forelse($expenses as $exp)
-                            <li class="flex justify-between items-center group">
-                                <span
-                                    class="text-sm font-black text-slate-600 uppercase tracking-widest group-hover:text-slate-900 transition-colors">{{ $exp->category }}</span>
-                                <span class="text-sm font-bold tabular-nums text-slate-900 italic">Rp
-                                    {{ number_format($exp->total, 0, ',', '.') }}</span>
-                            </li>
-                        @empty
-                            <li class="py-10 text-center text-slate-400 italic">No expenses recorded in this period.</li>
-                        @endforelse
-                    </ul>
-                </div>
-                <div class="px-10 py-8 bg-rose-50/30 border-t border-rose-100 flex justify-between items-center italic">
-                    <span class="text-xs font-black uppercase tracking-widest text-rose-700">Total Outgoings</span>
-                    <span class="text-xl font-black text-rose-600 underline tabular-nums decoration-rose-200">Rp
-                        {{ number_format($totalExpenses, 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>

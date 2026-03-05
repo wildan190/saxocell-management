@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\StoreProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class StorePosController extends Controller
 {
@@ -28,6 +29,9 @@ class StorePosController extends Controller
         $products = StoreProduct::where('store_id', $store->id)
             ->where('is_active', true)
             ->where('stock', '>', 0)
+            ->whereHas('product', function ($q) {
+                $q->where('status', 'available');
+            })
             ->with('product')
             ->get();
 
@@ -48,7 +52,16 @@ class StorePosController extends Controller
             'discount' => 'nullable|numeric|min:0',
             'customer_name' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-            'finance_account_id' => 'required|exists:finance_accounts,id',
+            'finance_account_id' => 'required_unless:payment_method,split|nullable|exists:finance_accounts,id',
+            'split_cash_account_id' => [
+                $request->payment_method === 'split' && $request->split_cash > 0 ? 'required' : 'nullable',
+                'exists:finance_accounts,id'
+            ],
+            'split_transfer_account_id' => [
+                $request->payment_method === 'split' && $request->split_transfer > 0 ? 'required' : 'nullable',
+                'exists:finance_accounts,id'
+            ],
+            'split_qris_account_id' => 'nullable|exists:finance_accounts,id',
             'items' => 'required|array|min:1',
             'items.*.store_product_id' => 'required|exists:store_products,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -63,7 +76,9 @@ class StorePosController extends Controller
                 $sp = StoreProduct::lockForUpdate()->findOrFail($item['store_product_id']);
 
                 if ($sp->stock < $item['quantity']) {
-                    abort(422, "Stok produk '{$sp->product->name}' tidak mencukupi.");
+                    throw ValidationException::withMessages([
+                        'stock' => ["Stok produk '{$sp->product->name}' tidak mencukupi."]
+                    ]);
                 }
 
                 $lineSubtotal = $sp->price * $item['quantity'];
@@ -93,13 +108,23 @@ class StorePosController extends Controller
                 $splits = [];
                 foreach ($payLabels as $key => $label) {
                     $amt = (float) ($request->input('split_' . $key) ?? 0);
+                    $accId = $request->input('split_' . $key . '_account_id');
                     if ($amt > 0) {
-                        $splits[] = ['method' => $key, 'label' => $label, 'amount' => $amt];
+                        $acc = FinanceAccount::find($accId);
+                        $splits[] = [
+                            'method' => $key,
+                            'label' => $label,
+                            'amount' => $amt,
+                            'finance_account_id' => $accId,
+                            'account_name' => $acc ? $acc->name : '-'
+                        ];
                     }
                 }
                 $amountPaid = collect($splits)->sum('amount');
                 if ($amountPaid < $total) {
-                    abort(422, 'Total split (Rp ' . number_format($amountPaid, 0, ',', '.') . ') kurang dari total transaksi.');
+                    throw ValidationException::withMessages([
+                        'split_total' => ['Total split (Rp ' . number_format($amountPaid, 0, ',', '.') . ') kurang dari total transaksi (Rp ' . number_format($total, 0, ',', '.') . ').']
+                    ]);
                 }
                 $paymentSplits = $splits;
                 $payNoteDetail = collect($splits)
@@ -130,26 +155,57 @@ class StorePosController extends Controller
             foreach ($lineItems as $li) {
                 $li['pos_transaction_id'] = $transaction->id;
                 PosTransactionItem::create($li);
+
+                // Mark associated product unit as sold
+                $sp = StoreProduct::find($li['store_product_id']);
+                if ($sp && $sp->product) {
+                    $sp->product->update(['status' => 'sold']);
+                }
             }
 
             // ====================================================
             // Auto-record Finance Transaction (Pemasukan / Income)
             // ====================================================
-            $account = FinanceAccount::lockForUpdate()->findOrFail($request->finance_account_id);
+            if ($request->payment_method === 'split') {
+                foreach ($paymentSplits as $split) {
+                    $methodKey = $split['method'];
+                    $accountId = $request->input("split_{$methodKey}_account_id");
 
-            FinanceTransaction::create([
-                'finance_account_id' => $account->id,
-                'category' => 'Penjualan POS',
-                'title' => 'POS ' . $txNumber . ($request->customer_name ? ' – ' . $request->customer_name : ''),
-                'type' => 'income',
-                'amount' => $total,
-                'transaction_date' => now()->toDateString(),
-                'notes' => 'Bayar: ' . $payNoteDetail
-                    . ($request->notes ? ' | ' . $request->notes : ''),
-                'is_admin_fee' => false,
-            ]);
+                    if ($accountId && $split['amount'] > 0) {
+                        $account = FinanceAccount::lockForUpdate()->findOrFail($accountId);
 
-            $account->increment('balance', $total);
+                        FinanceTransaction::create([
+                            'finance_account_id' => $account->id,
+                            'category' => 'Penjualan POS',
+                            'title' => 'POS ' . $txNumber . ($request->customer_name ? ' – ' . $request->customer_name : ''),
+                            'type' => 'income',
+                            'amount' => $split['amount'],
+                            'transaction_date' => now()->toDateString(),
+                            'notes' => 'Bayar (' . $split['label'] . '): ' . $payNoteDetail
+                                . ($request->notes ? ' | ' . $request->notes : ''),
+                            'is_admin_fee' => false,
+                        ]);
+
+                        $account->increment('balance', $split['amount']);
+                    }
+                }
+            } else {
+                $account = FinanceAccount::lockForUpdate()->findOrFail($request->finance_account_id);
+
+                FinanceTransaction::create([
+                    'finance_account_id' => $account->id,
+                    'category' => 'Penjualan POS',
+                    'title' => 'POS ' . $txNumber . ($request->customer_name ? ' – ' . $request->customer_name : ''),
+                    'type' => 'income',
+                    'amount' => $total,
+                    'transaction_date' => now()->toDateString(),
+                    'notes' => 'Bayar: ' . $payNoteDetail
+                        . ($request->notes ? ' | ' . $request->notes : ''),
+                    'is_admin_fee' => false,
+                ]);
+
+                $account->increment('balance', $total);
+            }
 
             session(['last_pos_transaction_id' => $transaction->id]);
         });

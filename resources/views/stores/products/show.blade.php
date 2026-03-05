@@ -69,12 +69,14 @@
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Base SKU</p>
                                 <p
                                     class="text-sm font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg inline-block">
-                                    {{ $product->product->sku }}</p>
+                                    {{ $product->product->sku }}
+                                </p>
                             </div>
                             <div class="text-right space-y-1">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</p>
                                 <p class="text-sm font-bold text-slate-900">
-                                    {{ $product->product->category ?? 'Uncategorized' }}</p>
+                                    {{ $product->product->category ?? 'Uncategorized' }}
+                                </p>
                             </div>
                         </div>
 
@@ -83,7 +85,8 @@
                             <div class="space-y-0.5">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Store Price</p>
                                 <p class="text-2xl font-black text-slate-900">Rp
-                                    {{ number_format($product->price, 0, ',', '.') }}</p>
+                                    {{ number_format($product->price, 0, ',', '.') }}
+                                </p>
                             </div>
                             <svg class="h-8 w-8 text-slate-100" fill="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -131,6 +134,79 @@
 
             <!-- Right Column: Details & Descriptions -->
             <div class="lg:col-span-2 space-y-8">
+                <!-- Shipment Tracker Card -->
+                @php
+                    $activeTransferItem = \App\Models\WarehouseStoreTransferItem::where('product_id', $product->product_id)
+                        ->whereHas('transfer', function ($q) use ($store) {
+                            $q->where('to_store_id', $store->id)
+                                ->where('status', '!=', 'received');
+                        })
+                        ->with('transfer')
+                        ->orderBy('id', 'desc')
+                        ->first();
+                @endphp
+
+                @if($activeTransferItem)
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125a1.125 1.125 0 001.125-1.125V3.375A1.125 1.125 0 0019.875 2.25H6.75a1.125 1.125 0 00-1.125 1.125V14.25m17.25 4.5V14.25m-17.25 0h17.25c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.315V5.25" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Shipment Tracking</h2>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Status</span>
+                                @php
+                                    $tStatus = $activeTransferItem->transfer->status;
+                                    $statusColor = 'bg-slate-100 text-slate-600';
+                                    $tLabel = 'Menyiapkan';
+                                    if ($tStatus == 'shipping') {
+                                        $statusColor = 'bg-blue-100 text-blue-700';
+                                        $tLabel = 'Dalam Perjalanan';
+                                    } elseif ($tStatus == 'arrived') {
+                                        $statusColor = 'bg-amber-100 text-amber-700';
+                                        $tLabel = 'Sampai di Store';
+                                    }
+                                @endphp
+                                <span
+                                    class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $statusColor }}">
+                                    {{ $tLabel }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Transfer #
+                                    </p>
+                                    <p class="text-sm font-bold text-slate-900">
+                                        {{ $activeTransferItem->transfer->transfer_number }}</p>
+                                </div>
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
+                                    <p class="text-sm font-bold text-slate-900">{{ $activeTransferItem->quantity }}
+                                        {{ $product->product->unit }}</p>
+                                </div>
+                            </div>
+
+                            @if($tStatus == 'arrived' || $tStatus == 'shipping')
+                                <form action="{{ route('inventory.warehouse-to-store.receive', $activeTransferItem->transfer) }}"
+                                    method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full py-4 rounded-2xl bg-emerald-600 text-white text-sm font-black shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all active:scale-[0.98]">
+                                        Konfirmasi Terima Barang
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Descriptions Card -->
                 <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 md:p-12">
                     <div class="flex items-center gap-3 mb-10">
@@ -174,6 +250,76 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Margin Card -->
+                @php
+                    $hpp = $product->product->purchase_price ?? 0;
+                    $jual = $product->price;
+                    $mgRp = $jual - $hpp;
+                    $mgPct = $hpp > 0 ? round(($mgRp / $hpp) * 100, 1) : 0;
+                    $isPos = $mgRp >= 0;
+                @endphp
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div
+                            class="h-10 w-10 rounded-xl {{ $isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' }} flex items-center justify-center">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="{{ $isPos ? 'M2.25 18L9 11.25l4.5 4.5L21.75 7.5' : 'M2.25 6L9 12.75l4.5-4.5L21.75 16.5' }}" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Analisis Margin</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">HPP (Modal)</p>
+                            <p class="text-lg font-black text-slate-700">Rp {{ number_format($hpp, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100">
+                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Harga Jual</p>
+                            <p class="text-lg font-black text-indigo-700">Rp {{ number_format($jual, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Margin Result Badge -->
+                    <div
+                        class="p-5 rounded-2xl {{ $isPos ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100' }} flex items-center justify-between mb-4">
+                        <div>
+                            <p
+                                class="text-[10px] font-black {{ $isPos ? 'text-emerald-500' : 'text-rose-400' }} uppercase tracking-widest mb-1">
+                                Margin Bersih</p>
+                            <p class="text-2xl font-black {{ $isPos ? 'text-emerald-700' : 'text-rose-600' }}">
+                                {{ $isPos ? '+' : '-' }}Rp {{ number_format(abs($mgRp), 0, ',', '.') }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <span
+                                class="inline-flex items-center px-4 py-2 rounded-xl {{ $isPos ? 'bg-emerald-600' : 'bg-rose-600' }} text-white text-xl font-black shadow-sm">
+                                {{ $isPos ? '+' : '' }}{{ $mgPct }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Bar visual -->
+                    @if($hpp > 0)
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                <span>0</span>
+                                <span>HPP</span>
+                                <span>Jual</span>
+                            </div>
+                            <div class="relative h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="absolute left-0 top-0 h-full rounded-full {{ $isPos ? 'bg-indigo-500' : 'bg-rose-400' }} transition-all duration-700"
+                                    style="width: {{ min(100, ($jual / max($hpp, $jual)) * 100) }}%"></div>
+                                <div class="absolute top-0 h-full w-0.5 bg-slate-400"
+                                    style="left: {{ min(100, ($hpp / max($hpp, $jual)) * 100) }}%"></div>
+                            </div>
+                            <p class="text-[9px] text-slate-400 text-center">
+                                {{ $isPos ? 'Jual di atas HPP' : 'Jual di bawah HPP — rugi!' }}</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Admin Info / Stats -->

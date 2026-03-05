@@ -16,6 +16,10 @@ class StoreProduct extends Model
         'price',
         'is_active',
         'image_path',
+        'min_price',
+        'max_price',
+        'internal_description',
+        'label',
     ];
 
     public function store()

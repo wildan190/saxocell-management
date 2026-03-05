@@ -67,10 +67,11 @@
                                 <div class="flex items-center">
                                     <div id="qrcode-{{ $product->id }}"
                                         class="qrcode-small w-16 h-16 p-2 bg-indigo-50 border-2 border-indigo-100 rounded-xl cursor-pointer hover:border-indigo-500 hover:scale-105 transition-all shadow-sm flex items-center justify-center group"
-                                        onclick="showFullQR('{{ $product->sku }}', '{{ $product->name }}')"></div>
+                                        onclick="showFullQR('{{ $product->sku }}', '{{ $product->name }}', {{ $product->selling_price ?? 0 }})">
+                                    </div>
                                     <script>
                                         // Use high contrast for maximum visibility
-                                        document.addEventListener("DOMContentLoaded", function() {
+                                        document.addEventListener("DOMContentLoaded", function () {
                                             const container = document.getElementById("qrcode-{{ $product->id }}");
                                             if (container) {
                                                 container.innerHTML = "";
@@ -141,8 +142,9 @@
                     </div>
 
                     <div class="space-y-1">
-                        <p id="qr-sku" class="text-sm font-mono font-black text-indigo-600 tracking-widest uppercase"></p>
-                        <p id="qr-name" class="text-xl font-bold text-slate-900"></p>
+                        <p id="qr-price" class="text-2xl font-black text-indigo-600 tracking-tight"></p>
+                        <p id="qr-sku" class="text-xs font-mono font-bold text-slate-400 tracking-widest uppercase"></p>
+                        <p id="qr-name" class="text-lg font-bold text-slate-900"></p>
                     </div>
 
                     <div class="pt-4 flex flex-col sm:flex-row gap-3">
@@ -164,9 +166,13 @@
     <script>
         let modalQR = null;
 
-        function showFullQR(sku, name) {
+        function showFullQR(sku, name, price) {
             document.getElementById('qr-sku').innerText = sku;
             document.getElementById('qr-name').innerText = name;
+
+            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+            document.getElementById('qr-price').innerText = formattedPrice;
+            document.getElementById('qr-price').dataset.rawPrice = price;
 
             const container = document.getElementById('full-qrcode');
             container.innerHTML = '';
@@ -190,39 +196,43 @@
         function printQR() {
             const sku = document.getElementById('qr-sku').innerText;
             const name = document.getElementById('qr-name').innerText;
+            const price = document.getElementById('qr-price').innerText;
             const qrCanvas = document.querySelector('#full-qrcode canvas');
             const qrImage = qrCanvas.toDataURL("image/png");
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
-                                        <html>
-                                            <head>
-                                                <title>Print Label - ${sku}</title>
-                                                <style>
-                                                    @page { size: 50mm 40mm; margin: 0; }
-                                                    body { 
-                                                        font-family: system-ui, -apple-system, sans-serif; 
-                                                        margin: 0; padding: 2mm; 
-                                                        text-align: center; 
-                                                        display: flex; flex-direction: column; 
-                                                        align-items: center; justify-content: center; 
-                                                        height: 36mm;
-                                                    }
-                                                    .sku { font-size: 10pt; font-weight: bold; margin-top: 2mm; }
-                                                    .name { font-size: 8pt; color: #444; margin-top: 1mm; }
-                                                    img { max-width: 25mm; height: auto; }
-                                                </style>
-                                            </head>
-                                            <body>
-                                                <img src="${qrImage}" />
-                                                <div class="sku">${sku}</div>
-                                                <div class="name">${name}</div>
-                                                <script>
-                                                    window.onload = () => { window.print(); window.close(); }
-                                                <\/script>
-                                            </body>
-                                        </html>
-                                    `);
+                                            <html>
+                                                <head>
+                                                    <title>Print Label - ${sku}</title>
+                                                    <style>
+                                                        @page { size: 50mm 40mm; margin: 0; }
+                                                        body { 
+                                                            font-family: system-ui, -apple-system, sans-serif; 
+                                                            margin: 0; padding: 1mm; 
+                                                            text-align: center; 
+                                                            display: flex; flex-direction: column; 
+                                                            align-items: center; justify-content: center; 
+                                                            height: 38mm;
+                                                            overflow: hidden;
+                                                        }
+                                                        .price { font-size: 14pt; font-weight: 900; color: #000; margin-bottom: 1mm; border-bottom: 1px solid #eee; width: 100%; padding-bottom: 1mm; }
+                                                        .sku { font-size: 9pt; font-weight: bold; margin-top: 1mm; font-family: monospace; }
+                                                        .name { font-size: 7pt; color: #555; margin-top: 0.5mm; font-weight: 600; }
+                                                        img { max-width: 20mm; height: auto; margin-top: 1mm; }
+                                                    </style>
+                                                </head>
+                                                <body>
+                                                    <div class="price">${price}</div>
+                                                    <img src="${qrImage}" />
+                                                    <div class="sku">${sku}</div>
+                                                    <div class="name">${name}</div>
+                                                    <script>
+                                                        window.onload = () => { window.print(); window.close(); }
+                                                    <\/script>
+                                                </body>
+                                            </html>
+                                        `);
             printWindow.document.close();
         }
     </script>

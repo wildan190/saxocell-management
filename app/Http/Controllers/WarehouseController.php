@@ -63,7 +63,7 @@ class WarehouseController extends Controller
             ->take(5);
 
         $recentReceipts = $warehouse->goodsReceipts()
-            ->with('items.product')
+            ->with(['items.product', 'admin'])
             ->latest()
             ->take(5)
             ->get();

@@ -58,6 +58,7 @@ class WarehouseStoreTransferController extends Controller
                 'to_store_id' => $request->to_store_id,
                 'transfer_date' => $request->transfer_date,
                 'notes' => $request->notes,
+                'status' => 'shipping', // Initial status
             ]);
 
             foreach ($request->items as $item) {
@@ -74,20 +75,7 @@ class WarehouseStoreTransferController extends Controller
                 // 2. Decrement Warehouse Stock
                 $inventory->decrement('quantity', $item['quantity']);
 
-                // 3. Increment Store Stock (or Create StoreProduct record)
-                $storeProduct = StoreProduct::firstOrCreate(
-                    [
-                        'store_id' => $request->to_store_id,
-                        'product_id' => $item['product_id'],
-                    ],
-                    [
-                        'stock' => 0,
-                        'price' => 0,
-                    ]
-                );
-                $storeProduct->increment('stock', $item['quantity']);
-
-                // 4. Record Item
+                // 3. Record Item
                 $transfer->items()->create([
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
@@ -106,5 +94,63 @@ class WarehouseStoreTransferController extends Controller
     {
         $transfer->load(['fromWarehouse', 'toStore', 'items.product']);
         return view('inventory.warehouse-to-store.show', compact('transfer'));
+    }
+
+    /**
+     * Mark the transfer as shipped.
+     */
+    public function ship(Request $request, WarehouseStoreTransfer $transfer)
+    {
+        $request->validate([
+            'shipping_number' => 'nullable|string|max:255',
+            'shipping_cost' => 'nullable|numeric|min:0',
+        ]);
+
+        $transfer->update([
+            'status' => 'shipping',
+            'shipping_number' => $request->shipping_number,
+            'shipping_cost' => $request->shipping_cost ?? 0,
+        ]);
+
+        return back()->with('success', 'Transfer status updated to Shipping.');
+    }
+
+    /**
+     * Mark the transfer as arrived at destination.
+     */
+    public function arrive(WarehouseStoreTransfer $transfer)
+    {
+        $transfer->update(['status' => 'arrived']);
+        return back()->with('success', 'Transfer status updated to Arrived.');
+    }
+
+    /**
+     * Receive the transfer and update store stock.
+     */
+    public function receive(WarehouseStoreTransfer $transfer)
+    {
+        if ($transfer->status === 'received') {
+            return back()->with('error', 'This transfer has already been received.');
+        }
+
+        return DB::transaction(function () use ($transfer) {
+            foreach ($transfer->items as $item) {
+                $storeProduct = StoreProduct::firstOrCreate(
+                    [
+                        'store_id' => $transfer->to_store_id,
+                        'product_id' => $item['product_id'],
+                    ],
+                    [
+                        'stock' => 0,
+                        'price' => 0,
+                    ]
+                );
+                $storeProduct->increment('stock', $item['quantity']);
+            }
+
+            $transfer->update(['status' => 'received']);
+
+            return back()->with('success', 'Transfer received and store stock updated.');
+        });
     }
 }

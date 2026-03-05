@@ -30,8 +30,17 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load('inventories.warehouse');
-        return view('products.show', compact('product'));
+        $product->load([
+            'inventories.warehouse',
+            'activities.user',
+            'activities.financeTransaction',
+            'priceHistories.user',
+            'storeProducts.store',
+            'productReturns.payments.financeAccount',
+            'productReturns.user',
+        ]);
+        $accounts = \App\Models\FinanceAccount::all();
+        return view('products.show', compact('product', 'accounts'));
     }
 
     public function store(Request $request)
@@ -63,14 +72,29 @@ class ProductController extends Controller
 
         // Check for price changes to log history
         if ($product->purchase_price != $request->purchase_price || $product->selling_price != $request->selling_price) {
+            $reason = $request->adjustment_reason ?: 'Manual Adjustment';
+
+            // Legacy Price History
             \App\Models\ProductPriceHistory::create([
                 'product_id' => $product->id,
                 'old_purchase_price' => $product->purchase_price,
                 'new_purchase_price' => $request->purchase_price,
                 'old_selling_price' => $product->selling_price,
                 'new_selling_price' => $request->selling_price,
-                'reason' => $request->adjustment_reason ?: 'Manual Adjustment',
+                'reason' => $reason,
                 'user_id' => auth()->id(),
+            ]);
+
+            // New Comprehensive Activity Log
+            \App\Models\ProductActivity::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'activity_type' => 'price_adjustment',
+                'description' => "Harga diubah. $reason",
+                'old_purchase_price' => $product->purchase_price,
+                'new_purchase_price' => $request->purchase_price,
+                'old_selling_price' => $product->selling_price,
+                'new_selling_price' => $request->selling_price,
             ]);
         }
 

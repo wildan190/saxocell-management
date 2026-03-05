@@ -6,26 +6,22 @@
             <div class="sm:flex-auto">
                 <nav class="flex mb-2" aria-label="Breadcrumb">
                     <ol class="flex items-center space-x-2 text-sm text-slate-500">
-                        <li><a href="{{ route('warehouses.index') }}" class="hover:text-slate-700">Warehouses</a></li>
+                        <li><a href="{{ route('stores.index') }}" class="hover:text-slate-700">Stores</a></li>
                         <li><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
                                     clip-rule="evenodd" />
                             </svg></li>
-                        <li><a href="{{ route('finance.accounts.index', $warehouse) }}"
-                                class="hover:text-slate-700">{{ $warehouse->name }}</a></li>
+                        <li><a href="{{ route('stores.show', $store) }}" class="hover:text-slate-700">{{ $store->name }}</a>
+                        </li>
                     </ol>
                 </nav>
                 <h1 class="text-3xl font-bold leading-tight tracking-tight text-slate-900">Goods Receipts</h1>
-                <p class="mt-2 text-sm text-slate-700">Tracking incoming inventory for <span
-                        class="font-semibold text-indigo-600">{{ $warehouse->name }}</span>.</p>
+                <p class="mt-2 text-sm text-slate-700">Tracking incoming inventory for Store <span
+                        class="font-semibold text-indigo-600">{{ $store->name }}</span>.</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 flex space-x-3">
-                <a href="{{ route('inventory.goods-returns.index', $warehouse) }}"
-                    class="block rounded-xl bg-white border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-all active:scale-[0.98]">
-                    Return History
-                </a>
-                <a href="{{ route('inventory.goods-receipts.create', $warehouse) }}"
+                <a href="{{ route('stores.inventory.goods-receipts.create', $store) }}"
                     class="block rounded-xl bg-indigo-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all active:scale-[0.98]">
                     New Receipt
                 </a>
@@ -76,13 +72,13 @@
                                 {{ $receipt->sender_name }}
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                                <a href="{{ route('inventory.goods-receipts.show', [$warehouse, $receipt]) }}"
+                                <a href="{{ route('stores.inventory.goods-receipts.show', [$store, $receipt]) }}"
                                     class="text-indigo-600 hover:text-indigo-900 font-semibold">View Details</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-12 text-center text-slate-500 italic">No receipts recorded yet.</td>
+                            <td colspan="5" class="py-12 text-center text-slate-500 italic">No receipts recorded yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

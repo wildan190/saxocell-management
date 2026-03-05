@@ -18,9 +18,24 @@
                         class="font-mono font-bold text-slate-900">{{ $transfer->transfer_number }}</span>.</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0">
+                @php
+                    $status = $transfer->status;
+                    $statusLabel = 'Pending';
+                    $statusColor = 'bg-slate-50 text-slate-700 ring-slate-600/20';
+                    if ($status == 'shipping') {
+                        $statusLabel = 'Shipping';
+                        $statusColor = 'bg-blue-50 text-blue-700 ring-blue-600/20';
+                    } elseif ($status == 'arrived') {
+                        $statusLabel = 'Arrived';
+                        $statusColor = 'bg-amber-50 text-amber-700 ring-amber-600/20';
+                    } elseif ($status == 'received') {
+                        $statusLabel = 'Received';
+                        $statusColor = 'bg-emerald-50 text-emerald-700 ring-emerald-600/20';
+                    }
+                @endphp
                 <span
-                    class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-bold text-green-700 ring-1 ring-inset ring-green-600/20">
-                    Completed
+                    class="inline-flex items-center rounded-full px-3 py-1 text-sm font-bold {{ $statusColor }} ring-1 ring-inset">
+                    {{ $statusLabel }}
                 </span>
             </div>
         </div>
@@ -47,10 +62,78 @@
                     </div>
                 </div>
 
+                @if($transfer->shipping_number)
+                    <div class="bg-blue-50/50 rounded-3xl shadow-sm ring-1 ring-blue-100 p-8 space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            <h3 class="text-xs font-black text-blue-600 uppercase tracking-widest">Shipping Info</h3>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Resi Code</p>
+                            <p class="text-sm font-mono font-bold text-slate-900">{{ $transfer->shipping_number }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Shipping Cost</p>
+                            <p class="text-sm font-bold text-slate-900">Rp
+                                {{ number_format($transfer->shipping_cost, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 @if($transfer->notes)
                     <div class="bg-indigo-50/50 rounded-3xl p-8 border border-indigo-100/50">
                         <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Notes</p>
                         <p class="text-sm text-indigo-700 leading-relaxed">{{ $transfer->notes }}</p>
+                    </div>
+                @endif
+
+                @if($status != 'received')
+                    <div class="bg-white rounded-3xl shadow-sm ring-1 ring-slate-100 p-8 space-y-6">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Update Status</h3>
+
+                        @if($status == 'pending')
+                            <form action="{{ route('inventory.warehouse-to-store.ship', $transfer) }}" method="POST"
+                                class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Shipping
+                                        Number (Resi)</label>
+                                    <input type="text" name="shipping_number"
+                                        class="block w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        placeholder="Input Resi...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Shipping
+                                        Cost (Ongkir)</label>
+                                    <input type="number" name="shipping_cost"
+                                        class="block w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        placeholder="0">
+                                </div>
+                                <button type="submit"
+                                    class="w-full py-3 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">
+                                    Send Shipment
+                                </button>
+                            </form>
+                        @elseif($status == 'shipping')
+                            <form action="{{ route('inventory.warehouse-to-store.arrive', $transfer) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full py-3 rounded-xl bg-amber-500 text-white text-sm font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">
+                                    Mark as Arrived
+                                </button>
+                            </form>
+                        @elseif($status == 'arrived')
+                            <form action="{{ route('inventory.warehouse-to-store.receive', $transfer) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-black shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all">
+                                    Confirm Received (at Store)
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 @endif
             </div>
