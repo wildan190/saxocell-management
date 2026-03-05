@@ -72,9 +72,17 @@
                                 @endif
                             </div>
                             <p class="text-sm font-black text-slate-900 leading-tight truncate">{{ $sp->product->name }}</p>
-                            <p class="text-xs text-slate-400 font-medium mt-0.5">Stok: {{ $sp->stock }}</p>
-                            <p class="text-sm font-black text-indigo-600 mt-1">Rp {{ number_format($sp->price, 0, ',', '.') }}
-                            </p>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Stok: {{ $sp->stock }}</p>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Modal: Rp {{ number_format($sp->product->purchase_price, 0, ',', '.') }}</p>
+                            </div>
+                            <div class="mt-1 flex items-center justify-between">
+                                <p class="text-sm font-black text-indigo-600">Rp {{ number_format($sp->price, 0, ',', '.') }}</p>
+                                <div class="flex flex-col items-end">
+                                    <p class="text-[8px] font-black text-rose-500 leading-none">Min: Rp {{ number_format($sp->min_price, 0, ',', '.') }}</p>
+                                    <p class="text-[8px] font-black text-emerald-500 leading-none mt-0.5">Max: Rp {{ number_format($sp->max_price, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
                             <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span
                                     class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white shadow-md">
