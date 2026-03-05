@@ -35,7 +35,12 @@ class StoreProductController extends Controller
             'description_1' => 'nullable|string',
             'description_2' => 'nullable|string',
             'description_3' => 'nullable|string',
+            'internal_description' => 'nullable|string',
+            'label' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
+            'min_price' => 'required|numeric|min:0',
+            'max_price' => 'required|numeric|min:0',
             'stock' => 'required|integer',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -48,6 +53,11 @@ class StoreProductController extends Controller
         $validated['is_active'] = $request->has('is_active');
 
         $product->update($validated);
+
+        // Update the parent product's category
+        if ($request->has('category')) {
+            $product->product->update(['category' => $request->category]);
+        }
 
         return redirect()->route('stores.products.index', $store)
             ->with('success', 'Product adjusted successfully.');

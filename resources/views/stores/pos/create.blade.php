@@ -15,6 +15,28 @@
             </div>
         </div>
 
+        @if($errors->any())
+            <div class="mb-8 rounded-2xl bg-red-50 border border-red-200 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-bold text-red-800">Terdapat kesalahan pada transaksi:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul role="list" class="list-disc pl-5 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
             {{-- ===== LEFT: Product Grid ===== --}}
@@ -145,23 +167,55 @@
                             <div class="space-y-3 pt-2 border-t border-slate-200 mt-2" x-show="isSplit">
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Detail Split
                                     Payment</p>
-                                <div class="flex items-center gap-3">
-                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Tunai</label>
-                                    <input type="number" name="split_cash" x-model.number="splitCash" min="0"
-                                        placeholder="0"
-                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Transfer</label>
-                                    <input type="number" name="split_transfer" x-model.number="splitTransfer" min="0"
-                                        placeholder="0"
-                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">QRIS</label>
-                                    <input type="number" name="split_qris" x-model.number="splitQris" min="0"
-                                        placeholder="0"
-                                        class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                                <div class="space-y-4">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center gap-3">
+                                            <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Tunai</label>
+                                            <input type="number" name="split_cash" x-model.number="splitCash" min="0"
+                                                placeholder="0"
+                                                class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                                        </div>
+                                        <select name="split_cash_account_id" :required="isSplit && splitCash > 0"
+                                            class="w-full rounded-lg border border-slate-100 px-3 py-1.5 text-[10px] font-bold focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-50">
+                                            <option value="">-- Pilih Akun Tunai --</option>
+                                            @foreach($accounts as $acc)
+                                                <option value="{{ $acc->id }}">{{ $acc->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center gap-3">
+                                            <label
+                                                class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">Transfer</label>
+                                            <input type="number" name="split_transfer" x-model.number="splitTransfer"
+                                                min="0" placeholder="0"
+                                                class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        </div>
+                                        <select name="split_transfer_account_id" :required="isSplit && splitTransfer > 0"
+                                            class="w-full rounded-lg border border-slate-100 px-3 py-1.5 text-[10px] font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                                            <option value="">-- Pilih Akun Transfer --</option>
+                                            @foreach($accounts as $acc)
+                                                <option value="{{ $acc->id }}">{{ $acc->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center gap-3">
+                                            <label class="text-xs text-slate-500 font-bold w-20 flex-shrink-0">QRIS</label>
+                                            <input type="number" name="split_qris" x-model.number="splitQris" min="0"
+                                                placeholder="0"
+                                                class="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                                        </div>
+                                        <select name="split_qris_account_id"
+                                            class="w-full rounded-lg border border-slate-100 px-3 py-1.5 text-[10px] font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50">
+                                            <option value="">-- Pilih Akun QRIS (Opsional) --</option>
+                                            @foreach($accounts as $acc)
+                                                <option value="{{ $acc->id }}">{{ $acc->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-black pt-1 px-1">
                                     <span class="text-slate-400">Total Dibayar</span>
@@ -223,7 +277,7 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div x-show="!isSplit">
                                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Catat
                                     ke Akun Keuangan <span class="text-red-400">*</span></label>
                                 @if($accounts->isEmpty())
@@ -234,11 +288,12 @@
                                             akun dahulu</a>.
                                     </div>
                                 @else
-                                    <select name="finance_account_id" required
+                                    <select name="finance_account_id" :required="!isSplit"
                                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                                         @foreach($accounts as $acc)
                                             <option value="{{ $acc->id }}">{{ $acc->name }} — Rp
-                                                {{ number_format($acc->balance, 0, ',', '.') }}</option>
+                                                {{ number_format($acc->balance, 0, ',', '.') }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 @endif

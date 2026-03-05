@@ -67,7 +67,8 @@ class StockOpnameController extends Controller
     {
         $request->validate([
             'sku' => 'required|string',
-            'physical_stock' => 'required|integer|min:0',
+            'physical_stock' => 'nullable|integer|min:0',
+            'increment' => 'nullable|boolean',
         ]);
 
         $product = Product::where('sku', $request->sku)->first();
@@ -80,13 +81,24 @@ class StockOpnameController extends Controller
             ->first();
 
         $systemStock = $inventory ? $inventory->quantity : 0;
-        $difference = $request->physical_stock - $systemStock;
+
+        $opnameItem = StockOpnameItem::where('stock_opname_id', $opname->id)
+            ->where('product_id', $product->id)
+            ->first();
+
+        if ($request->increment) {
+            $physicalStock = ($opnameItem ? $opnameItem->physical_stock : 0) + 1;
+        } else {
+            $physicalStock = $request->physical_stock ?? 0;
+        }
+
+        $difference = $physicalStock - $systemStock;
 
         $item = StockOpnameItem::updateOrCreate(
             ['stock_opname_id' => $opname->id, 'product_id' => $product->id],
             [
                 'system_stock' => $systemStock,
-                'physical_stock' => $request->physical_stock,
+                'physical_stock' => $physicalStock,
                 'difference' => $difference,
             ]
         );
@@ -94,7 +106,7 @@ class StockOpnameController extends Controller
         return response()->json([
             'product_name' => $product->name,
             'system_stock' => $systemStock,
-            'physical_stock' => $request->physical_stock,
+            'physical_stock' => $physicalStock,
             'difference' => $difference
         ]);
     }

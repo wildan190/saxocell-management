@@ -34,6 +34,10 @@ use App\Http\Controllers\EssResignationController;
 use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\StorePosController;
 use App\Http\Controllers\StoreTradeInController;
+use App\Http\Controllers\StoreStockOpnameController;
+use App\Http\Controllers\StoreGoodsReceiptController;
+use App\Http\Controllers\ProductActivityController;
+use App\Http\Controllers\ProductReturnController;
 use Illuminate\Support\Facades\Route;
 
 // Marketplace & Customer Portal (Public)
@@ -95,6 +99,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('warehouses', WarehouseController::class);
     Route::resource('stores', StoreController::class);
     Route::resource('products', ProductController::class);
+    Route::post('products/{product}/activities', [ProductActivityController::class, 'store'])->name('products.activities.store');
+    Route::post('products/{product}/label', [ProductReturnController::class, 'updateLabel'])->name('products.label.update');
+    Route::post('products/{product}/returns/ship', [ProductReturnController::class, 'ship'])->name('products.returns.ship');
+    Route::post('products/returns/{productReturn}/arrive', [ProductReturnController::class, 'arrive'])->name('products.returns.arrive');
+    Route::post('products/returns/{productReturn}/payment', [ProductReturnController::class, 'addPayment'])->name('products.returns.payment');
+    Route::post('products/returns/{productReturn}/clear', [ProductReturnController::class, 'clear'])->name('products.returns.clear');
     Route::resource('suppliers', SupplierController::class);
 
     // Store Management (Store-specific actions)
@@ -146,6 +156,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/trade-ins/{tradeIn}', [StoreTradeInController::class, 'show'])->name('stores.trade-ins.show');
         Route::post('/trade-ins/{tradeIn}/approve', [StoreTradeInController::class, 'approve'])->name('stores.trade-ins.approve');
         Route::post('/trade-ins/{tradeIn}/reject', [StoreTradeInController::class, 'reject'])->name('stores.trade-ins.reject');
+
+        Route::prefix('inventory')->group(function () {
+            Route::get('opname', [StoreStockOpnameController::class, 'index'])->name('stores.opname.index');
+            Route::get('opname/create', [StoreStockOpnameController::class, 'create'])->name('stores.opname.create');
+            Route::post('opname', [StoreStockOpnameController::class, 'store'])->name('stores.opname.store');
+            Route::get('opname/{stock_opname}', [StoreStockOpnameController::class, 'show'])->name('stores.opname.show');
+            Route::get('opname/{stock_opname}/scan', [StoreStockOpnameController::class, 'scan'])->name('stores.opname.scan');
+            Route::post('opname/{stock_opname}/update-item', [StoreStockOpnameController::class, 'updateItem'])->name('stores.opname.update-item');
+            Route::post('opname/{stock_opname}/complete', [StoreStockOpnameController::class, 'complete'])->name('stores.opname.complete');
+
+            // Store Goods Receipts
+            Route::get('goods-receipts', [StoreGoodsReceiptController::class, 'index'])->name('stores.inventory.goods-receipts.index');
+            Route::get('goods-receipts/create', [StoreGoodsReceiptController::class, 'create'])->name('stores.inventory.goods-receipts.create');
+            Route::post('goods-receipts', [StoreGoodsReceiptController::class, 'store'])->name('stores.inventory.goods-receipts.store');
+            Route::get('goods-receipts/{goodsReceipt}', [StoreGoodsReceiptController::class, 'show'])->name('stores.inventory.goods-receipts.show');
+        });
     });
 
     // Finance Reports (Global)
@@ -172,6 +198,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/warehouse-to-store/create', [WarehouseStoreTransferController::class, 'create'])->name('inventory.warehouse-to-store.create');
     Route::post('/inventory/warehouse-to-store', [WarehouseStoreTransferController::class, 'store'])->name('inventory.warehouse-to-store.store');
     Route::get('/inventory/warehouse-to-store/{transfer}', [WarehouseStoreTransferController::class, 'show'])->name('inventory.warehouse-to-store.show');
+    Route::post('/inventory/warehouse-to-store/{transfer}/receive', [WarehouseStoreTransferController::class, 'receive'])->name('inventory.warehouse-to-store.receive');
+    Route::post('/inventory/warehouse-to-store/{transfer}/ship', [WarehouseStoreTransferController::class, 'ship'])->name('inventory.warehouse-to-store.ship');
+    Route::post('/inventory/warehouse-to-store/{transfer}/arrive', [WarehouseStoreTransferController::class, 'arrive'])->name('inventory.warehouse-to-store.arrive');
 
     Route::get('/inventory/opname', [StockOpnameController::class, 'index'])->name('inventory.opname.index');
     Route::get('/inventory/opname/create', [StockOpnameController::class, 'create'])->name('inventory.opname.create');

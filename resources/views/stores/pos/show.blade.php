@@ -117,7 +117,7 @@
                         <div class="space-y-1 pl-4 border-l-2 border-slate-100 ml-1 mb-2">
                             @foreach($transaction->payment_splits as $split)
                                 <div class="flex justify-between text-[11px] text-slate-400 font-bold italic">
-                                    <span>{{ $split['label'] }}</span>
+                                    <span>{{ $split['label'] }} ({{ $split['account_name'] ?? '-' }})</span>
                                     <span>Rp {{ number_format($split['amount'], 0, ',', '.') }}</span>
                                 </div>
                             @endforeach

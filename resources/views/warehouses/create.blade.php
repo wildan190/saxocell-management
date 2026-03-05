@@ -17,9 +17,9 @@
                     <div>
                         <label for="name" class="block text-sm font-semibold leading-6 text-slate-900">Warehouse
                             Name</label>
-                        <div class="mt-2 text-red">
+                        <div class="mt-2">
                             <input id="name" name="name" type="text" required
-                                class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all @error('name') ring-red-500 @enderror"
+                                class="block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all @error('name') border-red-500 @enderror"
                                 placeholder="e.g. Central Hub" value="{{ old('name') }}">
                             @error('name')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -31,7 +31,7 @@
                         <label for="location" class="block text-sm font-semibold leading-6 text-slate-900">Location</label>
                         <div class="mt-2">
                             <input id="location" name="location" type="text" required
-                                class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all @error('location') ring-red-500 @enderror"
+                                class="block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all @error('location') border-red-500 @enderror"
                                 placeholder="e.g. Jakarta, Indonesia" value="{{ old('location') }}">
                             @error('location')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -44,7 +44,7 @@
                             (units)</label>
                         <div class="mt-2">
                             <input id="capacity" name="capacity" type="number"
-                                class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all @error('capacity') ring-red-500 @enderror"
+                                class="block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all @error('capacity') border-red-500 @enderror"
                                 placeholder="e.g. 5000" value="{{ old('capacity') }}">
                             @error('capacity')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -57,7 +57,7 @@
                             class="block text-sm font-semibold leading-6 text-slate-900">Description</label>
                         <div class="mt-2">
                             <textarea id="description" name="description" rows="4"
-                                class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all">{{ old('description') }}</textarea>
+                                class="block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all">{{ old('description') }}</textarea>
                         </div>
                     </div>
                 </div>

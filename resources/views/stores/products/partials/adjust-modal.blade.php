@@ -22,25 +22,66 @@
                             <input id="modalActive" name="is_active" type="checkbox"
                                 class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 transition-colors">
                         </div>
-                        <div class="text-sm leading-6">
+                        <div class="text-sm leading-6 flex-auto">
                             <label for="modalActive" class="font-bold text-indigo-900">Show in Marketplace</label>
                             <p class="text-xs text-indigo-600/70">Enable this to make the product visible to customers.
                             </p>
                         </div>
+                        <div class="text-right flex-shrink-0">
+                            <label
+                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Purchase
+                                Price Reference</label>
+                            <div id="modalPurchaseDisplay" class="text-sm font-black text-slate-600">Rp 0</div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Stock</label>
                             <input type="number" name="stock" id="modalStock" required
-                                class="block w-full rounded-xl border-slate-200 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Price
-                                (Rp)</label>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Min
+                                Price (Rp)</label>
+                            <input type="number" name="min_price" id="modalMinPrice" required step="0.01"
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Max
+                                Price (Rp)</label>
+                            <input type="number" name="max_price" id="modalMaxPrice" required step="0.01"
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Marketplace
+                                Price (Rp)</label>
                             <input type="number" name="price" id="modalPrice" required step="0.01"
-                                class="block w-full rounded-xl border-slate-200 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Label</label>
+                            <input type="text" name="label" id="modalLabel" placeholder="e.g. Best Seller, New"
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Category</label>
+                            <input type="text" name="category" id="modalCategory" list="category-list"
+                                placeholder="Laptop, Phone..."
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                            <datalist id="category-list">
+                                <option value="Laptop">
+                                <option value="Smartphone">
+                                <option value="Tablet">
+                                <option value="Accessories">
+                            </datalist>
                         </div>
                     </div>
 
@@ -52,11 +93,19 @@
                     </div>
 
                     <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Internal
+                            Description</label>
+                        <textarea name="internal_description" id="modalInternalDesc" rows="3"
+                            class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                            placeholder="Internal notes not visible to customers..."></textarea>
+                    </div>
+
+                    <div>
                         <label
                             class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Description
-                            1</label>
+                            1 (Marketplace)</label>
                         <input type="text" name="description_1" id="modalDesc1"
-                            class="block w-full rounded-xl border-slate-200 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                            class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                             placeholder="Color, size, or material...">
                     </div>
 
@@ -66,7 +115,7 @@
                                 class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Description
                                 2</label>
                             <input type="text" name="description_2" id="modalDesc2"
-                                class="block w-full rounded-xl border-slate-200 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-white shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         </div>
                         <div>
                             <label

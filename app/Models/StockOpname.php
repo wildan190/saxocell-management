@@ -8,6 +8,7 @@ class StockOpname extends Model
 {
     protected $fillable = [
         'warehouse_id',
+        'store_id',
         'user_id',
         'reference_number',
         'status',
@@ -22,6 +23,11 @@ class StockOpname extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function user()

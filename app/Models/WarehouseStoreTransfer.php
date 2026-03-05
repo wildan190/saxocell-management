@@ -12,6 +12,9 @@ class WarehouseStoreTransfer extends Model
         'to_store_id',
         'transfer_date',
         'notes',
+        'status',
+        'shipping_number',
+        'shipping_cost',
     ];
 
     protected $casts = [

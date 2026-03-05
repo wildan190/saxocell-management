@@ -3,33 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\GoodsReceipt;
-use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Product;
-use App\Models\User;
-use App\Models\Warehouse;
+use App\Models\StoreProduct;
+use App\Models\FinanceAccount;
+use App\Models\FinanceTransaction;
+use App\Models\ProductPriceHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class GoodsReceiptController extends Controller
+class StoreGoodsReceiptController extends Controller
 {
-    public function index(Warehouse $warehouse)
+    public function index(Store $store)
     {
-        $receipts = $warehouse->goodsReceipts()->with('admin')->latest()->get();
-        return view('inventory.goods-receipts.index', compact('warehouse', 'receipts'));
+        $receipts = GoodsReceipt::where('store_id', $store->id)->with('admin')->latest()->get();
+        return view('stores.inventory.goods-receipts.index', compact('store', 'receipts'));
     }
 
-    public function create(Warehouse $warehouse)
+    public function create(Store $store)
     {
         $products = Product::all();
-        $accounts = $warehouse->financeAccounts;
-        return view('inventory.goods-receipts.create', compact('warehouse', 'products', 'accounts'));
+        $accounts = $store->financeAccounts;
+        return view('stores.inventory.goods-receipts.create', compact('store', 'products', 'accounts'));
     }
 
-    public function store(Request $request, Warehouse $warehouse)
+    public function store(Request $request, Store $store)
     {
         $request->validate([
-            'admin_fee' => 'nullable|numeric|min:0',
             'payment_accounts' => 'required|array|min:1',
             'payment_accounts.*.id' => 'required|exists:finance_accounts,id',
             'payment_accounts.*.amount' => 'required|numeric|min:0',
@@ -47,7 +48,7 @@ class GoodsReceiptController extends Controller
             'items.*.purchase_price' => 'required|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($request, $warehouse) {
+        DB::transaction(function () use ($request, $store) {
             $totalItemsCost = 0;
             foreach ($request->items as $item) {
                 $totalItemsCost += $item['quantity'] * $item['purchase_price'];
@@ -66,12 +67,11 @@ class GoodsReceiptController extends Controller
                 }
             }
 
-            $totalCost = $totalItemsCost + $adminFeeTotal;
-
             // 1. Create Goods Receipt Header
-            $receipt = $warehouse->goodsReceipts()->create([
+            $receipt = GoodsReceipt::create([
+                'store_id' => $store->id,
                 'admin_id' => auth()->id(),
-                'receipt_number' => 'GR-' . strtoupper(Str::random(8)),
+                'receipt_number' => 'SGR-' . strtoupper(Str::random(8)),
                 'received_date' => $request->received_date,
                 'sender_name' => $request->sender_name,
                 'admin_fee' => $adminFeeTotal,
@@ -87,21 +87,21 @@ class GoodsReceiptController extends Controller
                 $fee = !empty($payment['has_fee']) ? 2500 : 0;
                 $totalDeduction = $payment['amount'] + $fee;
 
-                $account = \App\Models\FinanceAccount::lockForUpdate()->findOrFail($payment['id']);
+                $account = FinanceAccount::lockForUpdate()->findOrFail($payment['id']);
                 $account->decrement('balance', $totalDeduction);
 
-                \App\Models\FinanceTransaction::create([
+                FinanceTransaction::create([
                     'finance_account_id' => $account->id,
                     'category' => 'Pembelian Barang',
                     'title' => 'Pembelian via ' . $receipt->receipt_number,
                     'amount' => $payment['amount'],
                     'type' => 'expense',
                     'transaction_date' => $request->received_date,
-                    'notes' => "Pembelian: " . number_format($payment['amount'], 0, ',', '.')
+                    'notes' => "Pembelian Toko: " . number_format($payment['amount'], 0, ',', '.')
                 ]);
 
                 if ($fee > 0) {
-                    \App\Models\FinanceTransaction::create([
+                    FinanceTransaction::create([
                         'finance_account_id' => $account->id,
                         'category' => 'Biaya Admin',
                         'title' => 'Fee Admin via ' . $receipt->receipt_number,
@@ -115,7 +115,6 @@ class GoodsReceiptController extends Controller
 
             // 3. Process Items
             foreach ($request->items as $item) {
-                // Find or Create Product by SKU
                 $product = Product::firstOrCreate(
                     ['sku' => $item['sku']],
                     [
@@ -126,26 +125,22 @@ class GoodsReceiptController extends Controller
                     ]
                 );
 
-                // Update category if provided for existing product
                 if ($item['category']) {
                     $product->update(['category' => $item['category']]);
                 }
 
-                // Log Price History if purchase price changed
+                // Log Price History
                 $oldPurchasePrice = $product->purchase_price ?? 0;
-                $oldSellingPrice = $product->selling_price ?? 0;
-
                 if ($oldPurchasePrice != $item['purchase_price']) {
-                    \App\Models\ProductPriceHistory::create([
+                    ProductPriceHistory::create([
                         'product_id' => $product->id,
                         'old_purchase_price' => $oldPurchasePrice,
                         'new_purchase_price' => $item['purchase_price'],
-                        'old_selling_price' => $oldSellingPrice,
-                        'new_selling_price' => $oldSellingPrice,
-                        'reason' => 'Goods Receipt ' . $receipt->receipt_number,
+                        'old_selling_price' => $product->selling_price ?? 0,
+                        'new_selling_price' => $product->selling_price ?? 0,
+                        'reason' => 'Store Goods Receipt ' . $receipt->receipt_number,
                         'user_id' => auth()->id(),
                     ]);
-
                     $product->update(['purchase_price' => $item['purchase_price']]);
                 }
 
@@ -155,23 +150,23 @@ class GoodsReceiptController extends Controller
                     'purchase_price' => $item['purchase_price'],
                 ]);
 
-                // Update Inventory
-                $inventory = Inventory::firstOrNew([
-                    'warehouse_id' => $warehouse->id,
+                // Update Store Inventory
+                $storeProduct = StoreProduct::firstOrNew([
+                    'store_id' => $store->id,
                     'product_id' => $product->id,
                 ]);
-                $inventory->quantity += $item['quantity'];
-                $inventory->save();
+                $storeProduct->stock += $item['quantity'];
+                $storeProduct->save();
             }
         });
 
-        return redirect()->route('inventory.goods-receipts.index', $warehouse)
-            ->with('success', 'Goods Receipt recorded, stock updated, and finance transaction created.');
+        return redirect()->route('stores.inventory.goods-receipts.index', $store)
+            ->with('success', 'Store Goods Receipt recorded and store stock updated.');
     }
 
-    public function show(Warehouse $warehouse, GoodsReceipt $goodsReceipt)
+    public function show(Store $store, GoodsReceipt $goodsReceipt)
     {
         $goodsReceipt->load('items.product');
-        return view('inventory.goods-receipts.show', compact('warehouse', 'goodsReceipt'));
+        return view('stores.inventory.goods-receipts.show', compact('store', 'goodsReceipt'));
     }
 }

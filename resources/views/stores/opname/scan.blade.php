@@ -4,7 +4,7 @@
     <div class="max-w-6xl mx-auto space-y-8 pb-20">
         <div class="sm:flex sm:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <a href="{{ route('inventory.opname.index') }}"
+                <a href="{{ route('stores.opname.index', $store) }}"
                     class="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -12,14 +12,15 @@
                 </a>
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-slate-900">{{ $opname->reference_number }}</h1>
-                    <p class="text-sm text-slate-500 font-bold uppercase tracking-widest">{{ $opname->warehouse->name }}</p>
+                    <p class="text-sm text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">
+                        {{ $store->name }}</p>
                 </div>
             </div>
 
-            <form action="{{ route('inventory.opname.complete', $opname) }}" method="POST">
+            <form action="{{ route('stores.opname.complete', [$store, $opname]) }}" method="POST">
                 @csrf
                 <button type="submit"
-                    onclick="return confirm('Finalize this stock opname? This will adjust your inventory stock levels permanently.')"
+                    onclick="return confirm('Finalize this stock opname? This will adjust your store stock levels permanently.')"
                     class="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-indigo-100 hover:bg-indigo-500 transition-all active:scale-[0.98]">
                     Finalize Opname
                 </button>
@@ -92,10 +93,12 @@
                         </div>
                     </div>
 
-                    <div class="pt-6">
+                    <div class="pt-6 text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">You can manually
+                            adjust this value below if needed</p>
                         <button id="update-btn" onclick="submitCount()"
                             class="w-full rounded-2xl bg-indigo-600 py-4 text-center text-sm font-bold text-white shadow-xl shadow-indigo-100 hover:bg-indigo-500 transition-all active:scale-[0.98]">
-                            Save & Next
+                            Save Absolute Value
                         </button>
                     </div>
                 </div>
@@ -110,7 +113,8 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-slate-900">Ready to Scan</h3>
-                    <p class="text-sm text-slate-500">Scan a product QR code or enter SKU manually to begin counting.</p>
+                    <p class="text-sm text-slate-500">Scan product QR code or enter SKU manually. Scanning automatically
+                        increments count by 1.</p>
                 </div>
             </div>
         </div>
@@ -179,7 +183,7 @@
         function handleSku(sku) {
             currentSku = sku;
 
-            fetch(`{{ route('inventory.opname.update-item', $opname) }}`, {
+            fetch(`{{ route('stores.opname.update-item', [$store, $opname]) }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,7 +197,6 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.product_name) {
-                        // Show counter card and update data
                         emptyState.classList.add('hidden');
                         counterCard.classList.remove('hidden');
                         document.getElementById('current-p-name').innerText = data.product_name;
@@ -201,16 +204,7 @@
                         document.getElementById('current-p-sys').innerText = data.system_stock;
                         document.getElementById('physical-input').value = data.physical_stock;
                         calculateDiff();
-
-                        // Visual feedback (optional)
                         showToast(`Scanned: ${data.product_name} (+1)`);
-
-                        // Instead of full reload, we could update the table dynamically, 
-                        // but user's existing submitCount uses reload. 
-                        // Let's do a simple reload to match existing logic for now, 
-                        // or better yet, just refresh the list if needed.
-                        // For a smoother experience, let's just reload after a brief delay if needed, 
-                        // or just tell the user it was successful.
                         refreshTable();
                     } else {
                         alert(data.message || 'Product not found');
@@ -223,7 +217,6 @@
         }
 
         function refreshTable() {
-            // Fetch updated items and update the table without full reload
             fetch(window.location.href)
                 .then(res => res.text())
                 .then(html => {
@@ -238,7 +231,6 @@
         }
 
         function showToast(message) {
-            // Simple toast implementation
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-2xl z-50 transition-all duration-300 translate-y-20 opacity-0';
             toast.innerText = message;
@@ -270,7 +262,7 @@
             const phy = parseInt(document.getElementById('physical-input').value);
             if (isNaN(phy)) return alert('Please enter physical count');
 
-            fetch(`{{ route('inventory.opname.update-item', $opname) }}`, {
+            fetch(`{{ route('stores.opname.update-item', [$store, $opname]) }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -283,7 +275,7 @@
             })
                 .then(res => res.json())
                 .then(data => {
-                    location.reload(); // Simple way to update table and item count
+                    location.reload();
                 })
                 .catch(err => alert('Error saving count'));
         }

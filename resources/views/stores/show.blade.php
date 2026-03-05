@@ -38,6 +38,14 @@
                     class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
                     Transactions
                 </a>
+                <a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
+                    class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
+                    Goods Receipt
+                </a>
+                <a href="{{ route('stores.opname.index', $store) }}"
+                    class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
+                    Stock Opname
+                </a>
                 <a href="{{ route('stores.products.index', $store) }}"
                     class="inline-flex items-center px-4 py-2.5 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 transition-all">
                     Manage Stock
@@ -231,18 +239,18 @@
                 </div>
                 <div class="p-8 space-y-4">
                     @foreach($accounts as $account)
-                        <div
-                            class="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 ring-1 ring-slate-100 hover:shadow-md transition-all">
+                        <a href="{{ route('stores.finance.accounts.show', [$store, $account]) }}"
+                            class="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 ring-1 ring-slate-100 hover:shadow-md hover:ring-indigo-200 transition-all group/acc">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
+                                    class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-xs group-hover/acc:scale-110 transition-transform">
                                     {{ strtoupper(substr($account->name, 0, 2)) }}
                                 </div>
-                                <span class="text-sm font-black text-slate-700">{{ $account->name }}</span>
+                                <span class="text-sm font-black text-slate-700 group-hover/acc:text-indigo-600 transition-colors">{{ $account->name }}</span>
                             </div>
                             <span class="text-sm font-black text-slate-900">Rp
                                 {{ number_format($account->balance, 0, ',', '.') }}</span>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             </div>
