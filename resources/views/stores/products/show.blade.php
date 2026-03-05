@@ -184,12 +184,14 @@
                                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Transfer #
                                     </p>
                                     <p class="text-sm font-bold text-slate-900">
-                                        {{ $activeTransferItem->transfer->transfer_number }}</p>
+                                        {{ $activeTransferItem->transfer->transfer_number }}
+                                    </p>
                                 </div>
                                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
                                     <p class="text-sm font-bold text-slate-900">{{ $activeTransferItem->quantity }}
-                                        {{ $product->product->unit }}</p>
+                                        {{ $product->product->unit }}
+                                    </p>
                                 </div>
                             </div>
 
@@ -317,7 +319,8 @@
                                     style="left: {{ min(100, ($hpp / max($hpp, $jual)) * 100) }}%"></div>
                             </div>
                             <p class="text-[9px] text-slate-400 text-center">
-                                {{ $isPos ? 'Jual di atas HPP' : 'Jual di bawah HPP — rugi!' }}</p>
+                                {{ $isPos ? 'Jual di atas HPP' : 'Jual di bawah HPP — rugi!' }}
+                            </p>
                         </div>
                     @endif
                 </div>
@@ -331,7 +334,7 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Update</p>
-                        <p class="text-sm font-bold text-slate-900">{{ $product->updated_at->diffForHumans() }}</p>
+                        <p class="text-sm font-bold text-slate-900">{{ $product->updated_at->format('d M, H:i') }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Internal ID</p>

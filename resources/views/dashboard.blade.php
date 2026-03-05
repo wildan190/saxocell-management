@@ -117,7 +117,7 @@
                                             <div>
                                                 <p class="text-sm font-black text-slate-900">{{ $pos->transaction_number }}</p>
                                                 <p class="text-xs text-slate-500 font-medium">{{ $pos->store->name }} •
-                                                    {{ $pos->created_at->diffForHumans() }}</p>
+                                                    {{ $pos->created_at->format('H:i') }} WIB</p>
                                             </div>
                                         </div>
                                         <div class="text-right">
