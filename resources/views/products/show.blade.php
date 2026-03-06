@@ -180,11 +180,8 @@
                                                         </div>
                                                         <div class="text-right shrink-0">
                                                             <p
-                                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                                                                {{ $activity->created_at->format('d M Y') }}</p>
-                                                            <p
-                                                                class="text-[9px] font-bold text-slate-300 uppercase leading-none">
-                                                                {{ $activity->created_at->format('H:i') }}</p>
+                                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1" title="{{ $activity->created_at->format('d M Y H:i') }}">
+                                                                {{ formatIndonesianRelativeTime($activity->created_at) }}</p>
                                                         </div>
                                                     </div>
 
@@ -374,7 +371,7 @@
                                                 {{ $ret->resi }}</span>@endif
                                             </div>
                                             <p class="text-xs text-slate-500">Dibuat oleh <strong>{{ $ret->user->name }}</strong> ·
-                                                {{ $ret->created_at->format('d M Y') }}</p>
+                                                <span title="{{ $ret->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($ret->created_at) }}</span></p>
                                             @if($ret->notes)
                                             <p class="text-xs text-slate-400 italic mt-1">{{ $ret->notes }}</p>@endif
                                         </div>

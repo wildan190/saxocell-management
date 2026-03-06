@@ -59,16 +59,19 @@
                                 <td class="py-4 px-6 text-sm font-black text-slate-900">{{ $req->request_number }}</td>
                                 <td class="py-4 px-6 text-sm text-slate-600 font-bold">{{ $req->warehouse->name }}</td>
                                 <td class="py-4 px-6">
-                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-black uppercase tracking-wider
-                                                {{ $req->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
-                                                {{ $req->status === 'confirmed' ? 'bg-blue-100 text-blue-700' : '' }}
-                                                {{ $req->status === 'shipped' ? 'bg-indigo-100 text-indigo-700' : '' }}
-                                                {{ $req->status === 'received' ? 'bg-green-100 text-green-700' : '' }}">
+                                    <span
+                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-black uppercase tracking-wider
+                                                        {{ $req->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
+                                                        {{ $req->status === 'confirmed' ? 'bg-blue-100 text-blue-700' : '' }}
+                                                        {{ $req->status === 'shipped' ? 'bg-indigo-100 text-indigo-700' : '' }}
+                                                        {{ $req->status === 'received' ? 'bg-green-100 text-green-700' : '' }}">
                                         {{ $req->status }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-sm text-slate-500 font-medium">
-                                    {{ $req->created_at->format('M d, Y') }}</td>
+                                    <span
+                                        title="{{ $req->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($req->created_at) }}</span>
+                                </td>
                                 <td class="py-4 px-6 text-right space-x-2">
                                     <a href="{{ route('stores.goods-requests.show', [$store, $req]) }}"
                                         class="text-indigo-600 hover:text-indigo-500 font-black text-xs uppercase tracking-widest">Details</a>

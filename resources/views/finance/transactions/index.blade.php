@@ -94,7 +94,8 @@
                     @forelse($transactions as $transaction)
                         <tr class="hover:bg-slate-50/30 transition-colors">
                             <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm text-slate-600">
-                                {{ $transaction->transaction_date }}
+                                <span
+                                    title="{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}">{{ formatIndonesianRelativeTime($transaction->transaction_date) }}</span>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm font-semibold text-slate-900">
                                 {{ $transaction->title }}

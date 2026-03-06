@@ -173,7 +173,7 @@
                                         </div>
                                         <div>
                                             <p class="text-sm font-black text-slate-900 leading-none mb-1 group-hover:text-indigo-600 transition-colors">{{ $pos->transaction_number }}</p>
-                                            <p class="text-[11px] text-slate-400 font-bold uppercase">{{ $pos->created_at->format('d M — H:i') }}</p>
+                                            <p class="text-[11px] text-slate-400 font-bold uppercase" title="{{ $pos->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($pos->created_at) }}</p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -205,7 +205,7 @@
                                         </div>
                                         <div>
                                             <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $gr->receipt_number }}</p>
-                                            <p class="text-[11px] text-slate-400 font-bold uppercase">{{ $gr->created_at->format('d M Y') }}</p>
+                                            <p class="text-[11px] text-slate-400 font-bold uppercase" title="{{ $gr->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($gr->created_at) }}</p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -305,8 +305,9 @@
                                 @forelse($recentTransactions as $tx)
                                     <tr class="group hover:bg-slate-50/50 transition-colors">
                                         <td class="py-5 pl-4">
-                                            <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $tx->created_at->format('d M') }}</p>
-                                            <p class="text-[10px] text-slate-400 font-bold uppercase">{{ $tx->created_at->format('H:i') }}</p>
+                                            <div title="{{ $tx->created_at->format('d M Y H:i') }}">
+                                                <p class="text-sm font-black text-slate-900 leading-none">{{ formatIndonesianRelativeTime($tx->created_at) }}</p>
+                                            </div>
                                         </td>
                                         <td class="py-5">
                                             <div class="flex items-center gap-2">

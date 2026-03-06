@@ -12,7 +12,8 @@
                         </svg>
                     </a>
                     <h1 class="text-3xl font-bold leading-tight tracking-tight text-slate-900">Inter-Store Transfers -
-                        {{ $store->name }}</h1>
+                        {{ $store->name }}
+                    </h1>
                 </div>
                 <p class="mt-2 text-sm text-slate-700">Manage goods transfers between this store and other locations.</p>
             </div>
@@ -59,43 +60,44 @@
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     @forelse($transfers as $transfer)
-                                    <tr class="hover:bg-slate-50/50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <span class="text-sm font-bold text-slate-900">{{ $transfer->transfer_number }}</span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex flex-col">
-                                                <span class="text-xs font-bold text-slate-900">
-                                                    {{ $transfer->from_store_id == $store->id ? 'To: ' . $transfer->toStore->name : 'From: ' . $transfer->fromStore->name }}
-                                                </span>
-                                                <span class="text-[10px] text-slate-400 uppercase">
-                                                    {{ $transfer->from_store_id == $store->id ? 'Outgoing' : 'Incoming' }}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            @php
-                                                $statusColors = [
-                                                    'pending' => 'bg-amber-100 text-amber-700',
-                                                    'shipped' => 'bg-blue-100 text-blue-700',
-                                                    'received' => 'bg-green-100 text-green-700',
-                                                ];
-                                            @endphp
-                         <span
-                                                class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider {{ $statusColors[$transfer->status] ?? 'bg-slate-100 text-slate-700' }}">
-                                                {{ $transfer->status }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-slate-500">
-                                            {{ $transfer->created_at->format('M d, Y') }}
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <a href="{{ route('stores.transfers.show', [$store, $transfer]) }}"
-                                                class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors">
-                                                View Details
-                                            </a>
-                                        </td>
-                                    </tr>
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-bold text-slate-900">{{ $transfer->transfer_number }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-slate-900">
+                                        {{ $transfer->from_store_id == $store->id ? 'To: ' . $transfer->toStore->name : 'From: ' . $transfer->fromStore->name }}
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 uppercase">
+                                        {{ $transfer->from_store_id == $store->id ? 'Outgoing' : 'Incoming' }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @php
+                                    $statusColors = [
+                                        'pending' => 'bg-amber-100 text-amber-700',
+                                        'shipped' => 'bg-blue-100 text-blue-700',
+                                        'received' => 'bg-green-100 text-green-700',
+                                    ];
+                                @endphp
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider {{ $statusColors[$transfer->status] ?? 'bg-slate-100 text-slate-700' }}">
+                                    {{ $transfer->status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-500">
+                                <span
+                                    title="{{ $transfer->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($transfer->created_at) }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{{ route('stores.transfers.show', [$store, $transfer]) }}"
+                                    class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-sm text-slate-500 italic">

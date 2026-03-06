@@ -182,7 +182,8 @@
                                         {{ $tx->type === 'income' ? '+' : '-' }}Rp {{ number_format($tx->amount, 0, ',', '.') }}
                                     </span>
                                 </div>
-                                <span class="text-[10px] text-slate-500">{{ $tx->created_at->format('M d, H:i') }}</span>
+                                <span class="text-[10px] text-slate-500"
+                                    title="{{ $tx->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($tx->created_at) }}</span>
                             </div>
                         @empty
                             <p class="text-xs text-slate-400 italic">No recent transactions.</p>
@@ -262,18 +263,18 @@
                                 class="block p-3 rounded-xl bg-slate-50/50 hover:bg-slate-100 transition-colors">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs font-bold text-slate-900">{{ $storeReq->request_number }}</span>
-                                    <span
-                                        class="text-[10px] font-bold text-slate-500">{{ $storeReq->created_at->format('M d') }}</span>
+                                    <span class="text-[10px] font-bold text-slate-500"
+                                        title="{{ $storeReq->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($storeReq->created_at) }}</span>
                                 </div>
                                 <div class="mt-1 flex items-center justify-between">
                                     <span
                                         class="text-[10px] font-medium text-slate-500 italic">{{ $storeReq->store->name }}</span>
                                     <span
                                         class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-white border border-slate-100
-                                                                                {{ $storeReq->status === 'pending' ? 'text-amber-600' : '' }}
-                                                                                {{ $storeReq->status === 'confirmed' ? 'text-blue-600' : '' }}
-                                                                                {{ $storeReq->status === 'shipped' ? 'text-indigo-600' : '' }}
-                                                                                {{ $storeReq->status === 'received' ? 'text-green-600' : '' }}">
+                                                                                        {{ $storeReq->status === 'pending' ? 'text-amber-600' : '' }}
+                                                                                        {{ $storeReq->status === 'confirmed' ? 'text-blue-600' : '' }}
+                                                                                        {{ $storeReq->status === 'shipped' ? 'text-indigo-600' : '' }}
+                                                                                        {{ $storeReq->status === 'received' ? 'text-green-600' : '' }}">
                                         {{ $storeReq->status }}
                                     </span>
                                 </div>
@@ -305,12 +306,13 @@
                                 <span class="text-xs font-bold text-slate-900">{{ $opname->reference_number }}</span>
                                 <span
                                     class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 
-                                                            {{ $opname->status === 'completed' ? 'text-green-600' : 'text-amber-600' }}">
+                                                                    {{ $opname->status === 'completed' ? 'text-green-600' : 'text-amber-600' }}">
                                     {{ $opname->status }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center text-[10px]">
-                                <span class="text-slate-500">{{ $opname->created_at->format('M d, Y') }}</span>
+                                <span class="text-slate-500"
+                                    title="{{ $opname->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($opname->created_at) }}</span>
                                 <span class="text-slate-400 group-hover:text-indigo-600 transition-colors">Details
                                     &rarr;</span>
                             </div>

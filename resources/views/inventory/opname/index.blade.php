@@ -51,7 +51,8 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-600">{{ $opname->user->name }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-500">{{ $opname->created_at->format('M d, Y') }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-500" title="{{ $opname->created_at->format('d M Y H:i') }}">
+                                {{ formatIndonesianRelativeTime($opname->created_at) }}</td>
                             <td class="px-6 py-4 text-right">
                                 @if($opname->status === 'pending')
                                     <a href="{{ route('inventory.opname.scan', $opname) }}"

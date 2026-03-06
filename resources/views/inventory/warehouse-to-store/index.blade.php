@@ -55,7 +55,9 @@
                     @forelse($transfers as $transfer)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4 text-sm font-bold text-slate-900">{{ $transfer->transfer_number }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ $transfer->transfer_date->format('d M Y') }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600"
+                                title="{{ $transfer->transfer_date->format('d M Y') }}">
+                                {{ formatIndonesianRelativeTime($transfer->transfer_date) }}</td>
                             <td class="px-6 py-4">
                                 <span
                                     class="inline-flex items-center rounded-lg bg-orange-50 px-2 py-1 text-xs font-bold text-orange-700">

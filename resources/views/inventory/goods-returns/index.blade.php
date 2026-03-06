@@ -72,7 +72,8 @@
                     @forelse($returns as $return)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm text-slate-500">
-                                {{ $return->created_at->format('Y-m-d') }}
+                                <span
+                                    title="{{ $return->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($return->created_at) }}</span>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-red-600">
                                 {{ $return->return_number }}
