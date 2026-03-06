@@ -72,7 +72,7 @@
                                 {{ $receipt->sender_name }}
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                                <a href="{{ route('stores.inventory.goods-receipts.show', [$store, $receipt]) }}"
+                                <a href="{{ route('stores.goods-receipts.show', [$store, $receipt]) }}"
                                     class="text-indigo-600 hover:text-indigo-900 font-semibold">View Details</a>
                             </td>
                         </tr>

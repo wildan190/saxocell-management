@@ -160,7 +160,7 @@ class StoreGoodsReceiptController extends Controller
             }
         });
 
-        return redirect()->route('stores.inventory.goods-receipts.index', $store)
+        return redirect()->route('stores.goods-receipts.index', $store)
             ->with('success', 'Store Goods Receipt recorded and store stock updated.');
     }
 
