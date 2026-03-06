@@ -34,6 +34,10 @@
                     <div class="flex items-center gap-2">
                         <span
                             class="text-xs font-black text-indigo-600/50 uppercase tracking-[0.2em]">{{ $product->sku }}</span>
+                        @if($product->imei)
+                            <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+                            <span class="text-xs font-black text-slate-500 uppercase tracking-widest">IMEI: {{ $product->imei }}</span>
+                        @endif
                         <span class="h-1 w-1 rounded-full bg-slate-300"></span>
                         <span
                             class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ $product->category }}</span>
@@ -579,12 +583,14 @@
 
             function printSingleQR() {
                 const sku = "{{ $product->sku }}";
-                const name = "{{ $product->name }}";
+                const imei = "{{ $product->imei || $product->sku }}";
+                const name = "{{ addslashes($product->name) }}";
+                const price = "Rp {{ number_format($product->selling_price, 0, ',', '.') }}";
                 const qrCanvas = document.querySelector('#product-qr canvas');
                 if (!qrCanvas) return;
                 const qrImage = qrCanvas.toDataURL("image/png");
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write(`<html><head><title>Print Label - ${sku}</title><style>@page{size:50mm 40mm;margin:0}body{font-family:system-ui;margin:0;padding:2mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;height:36mm}.sku{font-size:10pt;font-weight:bold;margin-top:2mm}.name{font-size:8pt;color:#444;margin-top:1mm}img{max-width:25mm;height:auto}</style></head><body><img src="${qrImage}"/><div class="sku">${sku}</div><div class="name">${name}</div><script>window.onload=()=>{window.print();window.close()}<\/script></body></html>`);
+                printWindow.document.write(`<html><head><title>Print Label - ${sku}</title><style>@page{size:50mm 40mm;margin:0}body{font-family:system-ui;margin:0;padding:2mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;height:36mm}.sku{font-size:10pt;font-weight:bold;margin-top:2mm}.imei{font-size:8pt;font-weight:bold;color:#666;margin-top:1mm}.name{font-size:8pt;color:#444;margin-top:1mm}img{max-width:25mm;height:auto}</style></head><body><img src="${qrImage}"/><div class="sku">${sku}</div><div class="imei">IMEI: ${imei}</div><div class="name">${name}</div><div class="price">${price}</div><script>window.onload=()=>{window.print();window.close()}<\/script></body></html>`);
                 printWindow.document.close();
             }
         </script>

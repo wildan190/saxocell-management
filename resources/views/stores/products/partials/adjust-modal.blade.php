@@ -57,6 +57,13 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label
+                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5 underline decoration-indigo-500/30 underline-offset-4">IMEI
+                                / Serial Number</label>
+                            <input type="text" name="imei" id="modalImei" placeholder="e.g. 3527... or S123..."
+                                class="block w-full rounded-xl border-slate-200 px-4 py-3 bg-indigo-50/30 font-bold text-slate-900 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all focus:bg-white">
+                        </div>
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Marketplace
