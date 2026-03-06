@@ -65,12 +65,8 @@ class StoreController extends Controller
             ->take(5)
             ->get();
 
-        // 4. Trade-In Context (Store Specific)
-        $pendingTradeInsCount = TradeIn::where('store_id', $store->id)
-            ->where('status', 'pending')
-            ->count();
-
-        $recentTradeIns = TradeIn::where('store_id', $store->id)
+        // 4. Goods Receipt Context (Store Specific)
+        $recentGoodsReceipts = \App\Models\GoodsReceipt::where('store_id', $store->id)
             ->latest()
             ->take(5)
             ->get();
@@ -100,8 +96,7 @@ class StoreController extends Controller
             'storeProducts',
             'todayPosRevenue',
             'recentPosTransactions',
-            'pendingTradeInsCount',
-            'recentTradeIns',
+            'recentGoodsReceipts',
             'recentTransactions',
             'recentTransfers'
         ));

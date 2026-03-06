@@ -89,6 +89,29 @@
                     </div>
                 </div>
 
+                @if($transaction->is_trade_in)
+                    <div class="border-t border-dashed border-slate-200 pt-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Item Trade-In (Customer)</p>
+                            @if($transaction->tradeInProduct)
+                                @php
+                                    $isSold = $transaction->tradeInProduct->status === 'sold';
+                                @endphp
+                                <span class="inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase {{ $isSold ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ $isSold ? 'Terjual' : 'Belum Terjual' }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4 flex items-center justify-between">
+                            <div>
+                                <p class="font-black text-slate-900 text-sm">{{ $transaction->trade_in_device_name }}</p>
+                                <p class="text-xs text-slate-400 font-medium">IMEI: {{ $transaction->trade_in_imei }}</p>
+                            </div>
+                            <p class="font-black text-slate-900 text-sm">− Rp {{ number_format($transaction->trade_in_customer_price, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Summary --}}
                 <div class="border-t border-slate-100 pt-5 space-y-2">
                     <div class="flex justify-between text-sm">

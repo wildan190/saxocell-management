@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\StoreProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class StorePosController extends Controller
@@ -42,32 +43,15 @@ class StorePosController extends Controller
 
     public function store(Request $request, Store $store)
     {
-        $request->validate([
-            'cashier_name' => 'required|string|max:255',
-            'payment_method' => 'required|in:cash,transfer,qris,split',
-            'amount_paid' => 'nullable|numeric|min:0',
-            'split_cash' => 'nullable|numeric|min:0',
-            'split_transfer' => 'nullable|numeric|min:0',
-            'split_qris' => 'nullable|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
-            'customer_name' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
-            'finance_account_id' => 'required_unless:payment_method,split|nullable|exists:finance_accounts,id',
-            'split_cash_account_id' => [
-                $request->payment_method === 'split' && $request->split_cash > 0 ? 'required' : 'nullable',
-                'exists:finance_accounts,id'
-            ],
-            'split_transfer_account_id' => [
-                $request->payment_method === 'split' && $request->split_transfer > 0 ? 'required' : 'nullable',
-                'exists:finance_accounts,id'
-            ],
-            'split_qris_account_id' => 'nullable|exists:finance_accounts,id',
-            'items' => 'required|array|min:1',
-            'items.*.store_product_id' => 'required|exists:store_products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ]);
+        $transaction = null;
+        DB::transaction(function () use ($request, $store, &$transaction) {
+            $request->validate([
+                'is_trade_in' => 'nullable|boolean',
+                'trade_in_device_name' => 'required_if:is_trade_in,1|nullable|string|max:255',
+                'trade_in_imei' => 'required_if:is_trade_in,1|nullable|string|max:255',
+                'trade_in_customer_price' => 'required_if:is_trade_in,1|nullable|numeric|min:0',
+            ]);
 
-        DB::transaction(function () use ($request, $store) {
             $discount = $request->discount ?? 0;
             $subtotal = 0;
             $lineItems = [];
@@ -96,7 +80,11 @@ class StorePosController extends Controller
                 $sp->decrement('stock', $item['quantity']);
             }
 
-            $total = max(0, $subtotal - $discount);
+            $tradeInPrice = $request->is_trade_in ? (float) $request->trade_in_customer_price : 0;
+            $netTotal = ($subtotal - $discount) - $tradeInPrice;
+            $isStorePaying = $netTotal < 0;
+            $absTotal = abs($netTotal);
+
             $payLabels = ['cash' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS'];
             $txNumber = 'POS-' . strtoupper($store->id . '-' . now()->format('YmdHis'));
 
@@ -110,7 +98,7 @@ class StorePosController extends Controller
                     $amt = (float) ($request->input('split_' . $key) ?? 0);
                     $accId = $request->input('split_' . $key . '_account_id');
                     if ($amt > 0) {
-                        $acc = FinanceAccount::find($accId);
+                        $acc = \App\Models\FinanceAccount::find($accId);
                         $splits[] = [
                             'method' => $key,
                             'label' => $label,
@@ -121,9 +109,10 @@ class StorePosController extends Controller
                     }
                 }
                 $amountPaid = collect($splits)->sum('amount');
-                if ($amountPaid < $total) {
+                if ($amountPaid < $absTotal) {
+                    $labelPrefix = $isStorePaying ? 'Pembayaran Toko' : 'Pembayaran Customer';
                     throw ValidationException::withMessages([
-                        'split_total' => ['Total split (Rp ' . number_format($amountPaid, 0, ',', '.') . ') kurang dari total transaksi (Rp ' . number_format($total, 0, ',', '.') . ').']
+                        'split_total' => ["{$labelPrefix} (Rp " . number_format($amountPaid, 0, ',', '.') . ") kurang dari total transaksi (Rp " . number_format($absTotal, 0, ',', '.') . ")."]
                     ]);
                 }
                 $paymentSplits = $splits;
@@ -135,7 +124,31 @@ class StorePosController extends Controller
                 $payNoteDetail = $payLabels[$request->payment_method] ?? $request->payment_method;
             }
 
-            $change = max(0, $amountPaid - $total);
+            $change = max(0, $amountPaid - $absTotal);
+
+            // ── Handle Traded-In Device Creation ─────────────────────────
+            $tradeInProductId = null;
+            if ($request->is_trade_in) {
+                $tradedProduct = \App\Models\Product::create([
+                    'name' => $request->trade_in_device_name,
+                    'sku' => $request->trade_in_imei ?: 'TI-' . \Illuminate\Support\Str::random(8),
+                    'category' => 'Smartphone (Trade-In)',
+                    'purchase_price' => $tradeInPrice,
+                    'unit' => 'pcs',
+                    'status' => 'available',
+                    'description' => 'Trade-In from ' . ($request->customer_name ?: 'Customer') . ' via POS ' . $txNumber,
+                ]);
+
+                $tradeInProductId = $tradedProduct->id;
+
+                StoreProduct::create([
+                    'store_id' => $store->id,
+                    'product_id' => $tradedProduct->id,
+                    'price' => $tradeInPrice * 1.2, // Default markup 20%
+                    'stock' => 1,
+                    'is_active' => true,
+                ]);
+            }
 
             $transaction = PosTransaction::create([
                 'store_id' => $store->id,
@@ -146,9 +159,14 @@ class StorePosController extends Controller
                 'payment_splits' => $paymentSplits,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
-                'total_amount' => $total,
+                'total_amount' => $absTotal,
                 'amount_paid' => $amountPaid,
                 'change_amount' => $change,
+                'is_trade_in' => $request->is_trade_in ? true : false,
+                'trade_in_device_name' => $request->trade_in_device_name,
+                'trade_in_imei' => $request->trade_in_imei,
+                'trade_in_customer_price' => $tradeInPrice,
+                'trade_in_product_id' => $tradeInProductId,
                 'notes' => $request->notes,
             ]);
 
@@ -163,9 +181,13 @@ class StorePosController extends Controller
                 }
             }
 
+
             // ====================================================
-            // Auto-record Finance Transaction (Pemasukan / Income)
+            // Auto-record Finance Transaction
             // ====================================================
+            $txType = $isStorePaying ? 'expense' : 'income';
+            $txCategory = $request->is_trade_in ? 'Penjualan & Trade-In' : 'Penjualan POS';
+
             if ($request->payment_method === 'split') {
                 foreach ($paymentSplits as $split) {
                     $methodKey = $split['method'];
@@ -176,9 +198,9 @@ class StorePosController extends Controller
 
                         FinanceTransaction::create([
                             'finance_account_id' => $account->id,
-                            'category' => 'Penjualan POS',
+                            'category' => $txCategory,
                             'title' => 'POS ' . $txNumber . ($request->customer_name ? ' – ' . $request->customer_name : ''),
-                            'type' => 'income',
+                            'type' => $txType,
                             'amount' => $split['amount'],
                             'transaction_date' => now()->toDateString(),
                             'notes' => 'Bayar (' . $split['label'] . '): ' . $payNoteDetail
@@ -186,7 +208,11 @@ class StorePosController extends Controller
                             'is_admin_fee' => false,
                         ]);
 
-                        $account->increment('balance', $split['amount']);
+                        if ($txType === 'income') {
+                            $account->increment('balance', $split['amount']);
+                        } else {
+                            $account->decrement('balance', $split['amount']);
+                        }
                     }
                 }
             } else {
@@ -194,24 +220,26 @@ class StorePosController extends Controller
 
                 FinanceTransaction::create([
                     'finance_account_id' => $account->id,
-                    'category' => 'Penjualan POS',
+                    'category' => $txCategory,
                     'title' => 'POS ' . $txNumber . ($request->customer_name ? ' – ' . $request->customer_name : ''),
-                    'type' => 'income',
-                    'amount' => $total,
+                    'type' => $txType,
+                    'amount' => $absTotal,
                     'transaction_date' => now()->toDateString(),
                     'notes' => 'Bayar: ' . $payNoteDetail
                         . ($request->notes ? ' | ' . $request->notes : ''),
                     'is_admin_fee' => false,
                 ]);
 
-                $account->increment('balance', $total);
+                if ($txType === 'income') {
+                    $account->increment('balance', $absTotal);
+                } else {
+                    $account->decrement('balance', $absTotal);
+                }
             }
 
-            session(['last_pos_transaction_id' => $transaction->id]);
         });
 
-        $lastId = session('last_pos_transaction_id');
-        return redirect()->route('stores.pos.show', [$store, $lastId])
+        return redirect()->route('stores.pos.show', [$store, $transaction])
             ->with('success', 'Transaksi berhasil diproses dan otomatis dicatat ke keuangan.');
     }
 

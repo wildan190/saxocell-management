@@ -31,6 +31,11 @@ class TradeIn extends Model
         return $this->belongsTo(Store::class);
     }
 
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'sku', 'imei');
+    }
+
     public function getConditionLabelAttribute(): string
     {
         return match ($this->condition) {

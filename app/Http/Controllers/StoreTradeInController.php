@@ -11,11 +11,27 @@ use Illuminate\Support\Facades\DB;
 
 class StoreTradeInController extends Controller
 {
-    public function index(Store $store)
+    public function index(Request $request, Store $store)
     {
-        $tradeIns = TradeIn::where('store_id', $store->id)
-            ->latest()
-            ->paginate(20);
+        $query = TradeIn::where('store_id', $store->id);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('sale_status')) {
+            if ($request->sale_status === 'sold') {
+                $query->whereHas('product', function ($q) {
+                    $q->where('status', 'sold');
+                });
+            } elseif ($request->sale_status === 'unsold') {
+                $query->whereHas('product', function ($q) {
+                    $q->where('status', '!=', 'sold');
+                });
+            }
+        }
+
+        $tradeIns = $query->latest()->paginate(20);
 
         return view('stores.trade-ins.index', compact('store', 'tradeIns'));
     }

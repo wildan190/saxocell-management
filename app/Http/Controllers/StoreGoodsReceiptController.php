@@ -15,9 +15,27 @@ use Illuminate\Support\Str;
 
 class StoreGoodsReceiptController extends Controller
 {
-    public function index(Store $store)
+    public function index(Request $request, Store $store)
     {
-        $receipts = GoodsReceipt::where('store_id', $store->id)->with('admin')->latest()->get();
+        $query = GoodsReceipt::where('store_id', $store->id)
+            ->with(['items.product', 'admin']);
+
+        if ($request->filled('sale_status')) {
+            if ($request->sale_status === 'sold') {
+                // Whole receipt is considered sold if all items are sold
+                $query->whereDoesntHave('items.product', function ($q) {
+                    $q->where('status', '!=', 'sold');
+                });
+            } elseif ($request->sale_status === 'unsold') {
+                // Receipt is considered unsold if at least one item is not sold
+                $query->whereHas('items.product', function ($q) {
+                    $q->where('status', '!=', 'sold');
+                });
+            }
+        }
+
+        $receipts = $query->latest()->paginate(20);
+
         return view('stores.inventory.goods-receipts.index', compact('store', 'receipts'));
     }
 

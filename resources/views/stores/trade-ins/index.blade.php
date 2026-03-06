@@ -42,19 +42,30 @@
             $approved = $tradeIns->where('status', 'approved')->count();
             $rejected = $tradeIns->where('status', 'rejected')->count();
         @endphp
-        <div class="grid grid-cols-3 gap-4">
-            <div class="bg-white rounded-2xl p-5 ring-1 ring-slate-100 shadow-sm text-center">
-                <p class="text-3xl font-black text-amber-500">{{ $pending }}</p>
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Menunggu</p>
-            </div>
-            <div class="bg-white rounded-2xl p-5 ring-1 ring-slate-100 shadow-sm text-center">
-                <p class="text-3xl font-black text-green-600">{{ $approved }}</p>
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Disetujui</p>
-            </div>
-            <div class="bg-white rounded-2xl p-5 ring-1 ring-slate-100 shadow-sm text-center">
-                <p class="text-3xl font-black text-red-500">{{ $rejected }}</p>
-                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Ditolak</p>
-            </div>
+        </div>
+
+        {{-- Filters --}}
+        <div class="bg-white rounded-2xl p-4 ring-1 ring-slate-100 shadow-sm flex flex-wrap items-center gap-4">
+            <form action="{{ route('stores.trade-ins.index', $store) }}" method="GET" class="flex flex-wrap items-center gap-4 w-full">
+                <div class="flex-1 min-w-[200px]">
+                    <select name="status" onchange="this.form.submit()" class="w-full rounded-xl border-slate-200 text-sm font-bold focus:ring-indigo-600 focus:border-indigo-600">
+                        <option value="">-- Semua Status --</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <select name="sale_status" onchange="this.form.submit()" class="w-full rounded-xl border-slate-200 text-sm font-bold focus:ring-indigo-600 focus:border-indigo-600">
+                        <option value="">-- Semua Status Jual --</option>
+                        <option value="sold" {{ request('sale_status') == 'sold' ? 'selected' : '' }}>Terjual</option>
+                        <option value="unsold" {{ request('sale_status') == 'unsold' ? 'selected' : '' }}>Belum Terjual</option>
+                    </select>
+                </div>
+                @if(request()->anyFilled(['status', 'sale_status']))
+                    <a href="{{ route('stores.trade-ins.index', $store) }}" class="text-xs font-black text-rose-500 uppercase tracking-widest hover:text-rose-700">Reset</a>
+                @endif
+            </form>
         </div>
 
         {{-- Table --}}
@@ -86,6 +97,8 @@
                                     Nilai Taksir</th>
                                 <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
+                                <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
+                                    Status Jual</th>
                                 <th class="px-6 py-4"></th>
                             </tr>
                         </thead>
@@ -124,6 +137,17 @@
                                             class="inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase {{ $statusColor[$ti->status] ?? 'bg-slate-100 text-slate-500' }}">
                                             {{ $statusLabel[$ti->status] ?? $ti->status }}
                                         </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($ti->product && $ti->product->status === 'sold')
+                                            <span class="inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase bg-indigo-100 text-indigo-700">
+                                                Terjual
+                                            </span>
+                                        @else
+                                            <span class="inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase bg-slate-100 text-slate-500">
+                                                Belum Terjual
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('stores.trade-ins.show', [$store, $ti]) }}"

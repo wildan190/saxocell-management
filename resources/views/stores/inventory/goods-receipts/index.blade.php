@@ -44,6 +44,21 @@
                 </div>
             </div>
         @endif
+        {{-- Filters --}}
+        <div class="bg-white rounded-2xl p-4 ring-1 ring-slate-100 shadow-sm mb-6 flex flex-wrap items-center gap-4">
+            <form action="{{ route('stores.goods-receipts.index', $store) }}" method="GET" class="flex flex-wrap items-center gap-4 w-full">
+                <div class="flex-1 min-w-[200px]">
+                    <select name="sale_status" onchange="this.form.submit()" class="w-full rounded-xl border-slate-200 text-sm font-bold focus:ring-indigo-600 focus:border-indigo-600">
+                        <option value="">-- Semua Status Jual --</option>
+                        <option value="sold" {{ request('sale_status') == 'sold' ? 'selected' : '' }}>Semua Terjual</option>
+                        <option value="unsold" {{ request('sale_status') == 'unsold' ? 'selected' : '' }}>Belum Terjual (Ada Stok)</option>
+                    </select>
+                </div>
+                @if(request('sale_status'))
+                    <a href="{{ route('stores.goods-receipts.index', $store) }}" class="text-xs font-black text-rose-500 uppercase tracking-widest hover:text-rose-700">Reset</a>
+                @endif
+            </form>
+        </div>
 
         <div class="bg-white shadow-sm ring-1 ring-slate-100 rounded-2xl overflow-hidden mt-8">
             <table class="min-w-full divide-y divide-slate-200">
@@ -53,6 +68,7 @@
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Receipt #</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Admin</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Sender</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Status Jual</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Actions</th>
                     </tr>
                 </thead>
@@ -71,6 +87,18 @@
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
                                 {{ $receipt->sender_name }}
                             </td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                @php
+                                    $saleStatus = $receipt->sale_status;
+                                @endphp
+                                @if($saleStatus === 'sold')
+                                    <span class="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase bg-indigo-100 text-indigo-700">Terjual</span>
+                                @elseif($saleStatus === 'partial')
+                                    <span class="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase bg-amber-100 text-amber-700">Parsial</span>
+                                @else
+                                    <span class="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase bg-slate-100 text-slate-500">Belum Terjual</span>
+                                @endif
+                            </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                                 <a href="{{ route('stores.goods-receipts.show', [$store, $receipt]) }}"
                                     class="text-indigo-600 hover:text-indigo-900 font-semibold">View Details</a>
@@ -83,6 +111,11 @@
                     @endforelse
                 </tbody>
             </table>
+            @if($receipts->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100">
+                    {{ $receipts->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

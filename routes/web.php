@@ -149,13 +149,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/pos', [StorePosController::class, 'store'])->name('stores.pos.store');
         Route::get('/pos/{transaction}', [StorePosController::class, 'show'])->name('stores.pos.show');
 
-        // Trade-In
+        /*
+        // Trade-In (Legacy - Now integrated into POS)
         Route::get('/trade-ins', [StoreTradeInController::class, 'index'])->name('stores.trade-ins.index');
         Route::get('/trade-ins/create', [StoreTradeInController::class, 'create'])->name('stores.trade-ins.create');
         Route::post('/trade-ins', [StoreTradeInController::class, 'store'])->name('stores.trade-ins.store');
         Route::get('/trade-ins/{tradeIn}', [StoreTradeInController::class, 'show'])->name('stores.trade-ins.show');
         Route::post('/trade-ins/{tradeIn}/approve', [StoreTradeInController::class, 'approve'])->name('stores.trade-ins.approve');
         Route::post('/trade-ins/{tradeIn}/reject', [StoreTradeInController::class, 'reject'])->name('stores.trade-ins.reject');
+        */
 
         Route::prefix('inventory')->group(function () {
             Route::get('opname', [StoreStockOpnameController::class, 'index'])->name('stores.opname.index');
