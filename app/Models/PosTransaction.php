@@ -18,8 +18,18 @@ class PosTransaction extends Model
         'total_amount',
         'amount_paid',
         'change_amount',
+        'is_trade_in',
+        'trade_in_device_name',
+        'trade_in_imei',
+        'trade_in_customer_price',
+        'trade_in_product_id',
         'notes',
     ];
+
+    public function tradeInProduct()
+    {
+        return $this->belongsTo(Product::class, 'trade_in_product_id');
+    }
 
     protected $casts = [
         'payment_splits' => 'array',

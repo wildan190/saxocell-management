@@ -162,12 +162,29 @@
                             </div>
                             {{-- Total --}}
                             <div class="flex justify-between text-base border-t border-slate-200 pt-3">
-                                <span class="font-black text-slate-700">Total</span>
-                                <span class="font-black text-indigo-700 text-lg" x-text="'Rp ' + formatNum(total())"></span>
+                                <span class="font-black text-slate-700" x-text="netTotal() >= 0 ? 'Total Tagihan' : 'Toko Harus Bayar'"></span>
+                                <span class="font-black text-lg" :class="netTotal() >= 0 ? 'text-indigo-700' : 'text-rose-600'" x-text="'Rp ' + formatNum(Math.abs(netTotal()))"></span>
                             </div>
-                            {{-- Amount Paid --}}
+
+                            {{-- Trade-In Info Summary inside Payment --}}
+                            <template x-if="isTradeIn && tradeInCustomerPrice > 0">
+                                <div class="p-3 rounded-xl bg-amber-50 border border-amber-100 space-y-1">
+                                    <div class="flex justify-between text-[10px] font-bold text-amber-700 uppercase">
+                                        <span>HP Customer</span>
+                                        <span x-text="'Rp ' + formatNum(tradeInCustomerPrice)"></span>
+                                    </div>
+                                    <p class="text-[9px] text-amber-600 font-medium" x-text="tradeInDeviceName + (tradeInImei ? ' (' + tradeInImei + ')' : '')"></p>
+                                </div>
+                            </template>
+
+                            {{-- Amount Paid / Split Header Label --}}
+                            <div class="pt-2 border-t border-slate-200 mt-2">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest" x-text="netTotal() >= 0 ? 'Pembayaran dari Pelanggan' : 'Pelunasan dari Toko'"></p>
+                            </div>
+
+                            {{-- Amount Paid (Normal) --}}
                             <div class="flex items-center gap-3" x-show="!isSplit">
-                                <label class="text-sm text-slate-500 font-medium w-24 flex-shrink-0">Dibayar (Rp)</label>
+                                <label class="text-sm text-slate-500 font-medium w-24 flex-shrink-0" x-text="netTotal() >= 0 ? 'Dibayar (Rp)' : 'Dibayar Toko'"></label>
                                 <input type="number" name="amount_paid" x-model.number="amountPaid" min="0" placeholder="0"
                                     class="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-right focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                             </div>
@@ -227,15 +244,43 @@
                                 </div>
                                 <div class="flex justify-between items-center text-xs font-black pt-1 px-1">
                                     <span class="text-slate-400">Total Dibayar</span>
-                                    <span :class="totalPaid() < total() ? 'text-red-500' : 'text-green-600'"
+                                    <span :class="totalPaid() < Math.abs(netTotal()) ? 'text-red-500' : 'text-green-600'"
                                         x-text="'Rp ' + formatNum(totalPaid())"></span>
                                 </div>
                             </div>
                             {{-- Change --}}
                             <div class="flex justify-between text-sm bg-green-50 rounded-xl px-4 py-2"
-                                x-show="change() >= 0 && totalPaid() > 0">
+                                x-show="change() >= 0 && totalPaid() > 0 && netTotal() >= 0">
                                 <span class="text-green-700 font-bold">Kembalian</span>
                                 <span class="font-black text-green-700" x-text="'Rp ' + formatNum(change())"></span>
+                            </div>
+                        </div>
+
+                        {{-- Trade-In Toggle & Inputs --}}
+                        <div class="px-6 py-4 border-t border-slate-100 bg-amber-50/30">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-xs font-black text-amber-700 uppercase tracking-widest">Tukar Tambah (Trade-In)</h3>
+                                    <p class="text-[10px] text-amber-600 font-medium">Beli HP dari Customer</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" x-model="isTradeIn" name="is_trade_in" value="1" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
+                            </div>
+
+                            <div x-show="isTradeIn" x-collapse x-cloak class="space-y-3">
+                                <div class="grid grid-cols-1 gap-3">
+                                    <input type="text" name="trade_in_device_name" x-model="tradeInDeviceName" placeholder="Nama HP Pelanggan"
+                                        class="w-full rounded-xl border border-amber-200 px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                                    <input type="text" name="trade_in_imei" x-model="tradeInImei" placeholder="IMEI HP Pelanggan"
+                                        class="w-full rounded-xl border border-amber-200 px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-amber-400">Rp</span>
+                                        <input type="number" name="trade_in_customer_price" x-model.number="tradeInCustomerPrice" placeholder="Harga HP Pelanggan"
+                                            class="w-full rounded-xl border border-amber-200 pl-10 pr-3 py-2 text-sm font-black focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -280,7 +325,7 @@
                                 <div>
                                     <label
                                         class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Pelanggan</label>
-                                    <input type="text" name="customer_name" placeholder="Opsional"
+                                    <input type="text" name="customer_name" x-model="customerName" placeholder="Opsional"
                                         class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 </div>
                             </div>
@@ -330,6 +375,11 @@
                 splitTransfer: 0,
                 splitQris: 0,
                 isSplit: false,
+                isTradeIn: false,
+                tradeInDeviceName: '',
+                tradeInImei: '',
+                tradeInCustomerPrice: 0,
+                customerName: '',
                 paymentMethod: 'cash',
                 search: '',
 
@@ -362,6 +412,14 @@
                     return Math.max(0, this.subtotal() - (this.discount || 0));
                 },
 
+                netTotal() {
+                    let t = this.subtotal() - (this.discount || 0);
+                    if (this.isTradeIn) {
+                        t -= (this.tradeInCustomerPrice || 0);
+                    }
+                    return t;
+                },
+
                 totalPaid() {
                     if (this.isSplit) {
                         return (this.splitCash || 0) + (this.splitTransfer || 0) + (this.splitQris || 0);
@@ -370,7 +428,7 @@
                 },
 
                 change() {
-                    return Math.max(0, this.totalPaid() - this.total());
+                    return Math.max(0, this.totalPaid() - Math.abs(this.netTotal()));
                 },
 
                 formatNum(n) {

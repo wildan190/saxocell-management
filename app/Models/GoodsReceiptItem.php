@@ -17,4 +17,9 @@ class GoodsReceiptItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function isSold()
+    {
+        return $this->product && $this->product->status === 'sold';
+    }
 }

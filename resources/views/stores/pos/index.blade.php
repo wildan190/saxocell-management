@@ -66,6 +66,8 @@
                                 <th class="text-right px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Total</th>
                                 <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
+                                    Trade-In</th>
+                                <th class="text-left px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
                                     Waktu</th>
                                 <th class="px-6 py-4"></th>
                             </tr>
@@ -104,6 +106,19 @@
                                     </td>
                                     <td class="px-6 py-4 text-right font-black text-slate-900">Rp
                                         {{ number_format($tx->total_amount, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 font-medium text-slate-700">
+                                        @if($tx->is_trade_in)
+                                            <div class="flex flex-col">
+                                                <span
+                                                    class="inline-flex rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-black text-white uppercase mb-1 w-fit">Tukar
+                                                    Tambah</span>
+                                                <span
+                                                    class="text-xs font-bold text-slate-600 truncate max-w-[120px]">{{ $tx->trade_in_device_name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-slate-400">—</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-slate-500 text-xs font-medium">
                                         {{ $tx->created_at->format('d M Y H:i') }}

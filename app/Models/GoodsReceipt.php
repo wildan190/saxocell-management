@@ -28,6 +28,21 @@ class GoodsReceipt extends Model
         return $this->hasMany(GoodsReceiptItem::class);
     }
 
+    public function getSaleStatusAttribute()
+    {
+        $total = $this->items->count();
+        if ($total === 0)
+            return 'empty';
+
+        $soldCount = $this->items->filter(fn($i) => $i->product && $i->product->status === 'sold')->count();
+
+        if ($soldCount === $total)
+            return 'sold';
+        if ($soldCount > 0)
+            return 'partial';
+        return 'unsold';
+    }
+
     public function returns()
     {
         return $this->hasMany(GoodsReturn::class);
