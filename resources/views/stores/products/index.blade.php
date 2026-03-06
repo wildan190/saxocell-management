@@ -272,14 +272,19 @@
                         <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Ready to print</p>
                     </div>
 
-                    <div id="full-qrcode"
-                        class="flex justify-center p-8 bg-indigo-50/50 rounded-[2rem] mx-auto border-2 border-indigo-100 shadow-sm w-fit">
-                    </div>
+                    <div class="space-y-4">
+                        <div class="flex flex-col items-center">
+                            <div id="full-qrcode"
+                                class="flex justify-center p-8 bg-indigo-50/50 rounded-[2rem] mx-auto border-2 border-indigo-100 shadow-sm w-fit">
+                            </div>
+                            <p id="qr-sku-small" class="text-[10px] font-mono font-bold text-slate-400 uppercase mt-2"></p>
+                        </div>
 
-                    <div class="space-y-1">
-                        <p id="qr-price" class="text-2xl font-black text-indigo-600 tracking-tight"></p>
-                        <p id="qr-sku" class="text-xs font-mono font-bold text-slate-400 tracking-widest uppercase"></p>
-                        <p id="qr-name" class="text-lg font-bold text-slate-900"></p>
+                        <div class="space-y-1">
+                            <p id="qr-price" class="text-2xl font-black text-indigo-600 tracking-tight"></p>
+                            <p id="qr-imei" class="text-xs font-mono font-bold text-slate-500 tracking-widest uppercase"></p>
+                            <p id="qr-name" class="text-lg font-bold text-slate-900"></p>
+                        </div>
                     </div>
 
                     <div class="pt-4 flex flex-col sm:flex-row gap-3">
@@ -303,7 +308,8 @@
         let modalQR = null;
 
         function showFullQR(sku, name, price) {
-            document.getElementById('qr-sku').innerText = sku;
+            document.getElementById('qr-sku-small').innerText = sku;
+            document.getElementById('qr-imei').innerText = 'IMEI: ' + sku;
             document.getElementById('qr-name').innerText = name;
 
             const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
@@ -329,7 +335,7 @@
         }
 
         function printQR() {
-            const sku = document.getElementById('qr-sku').innerText;
+            const sku = document.getElementById('qr-sku-small').innerText;
             const name = document.getElementById('qr-name').innerText;
             const price = document.getElementById('qr-price').innerText;
             const qrCanvas = document.querySelector('#full-qrcode canvas');
@@ -344,23 +350,30 @@
                                                         @page { size: 50mm 40mm; margin: 0; }
                                                         body { 
                                                             font-family: system-ui, -apple-system, sans-serif; 
-                                                            margin: 0; padding: 1mm; 
+                                                            margin: 0; padding: 2mm; 
                                                             text-align: center; 
                                                             display: flex; flex-direction: column; 
                                                             align-items: center; justify-content: center; 
-                                                            height: 38mm;
+                                                            height: 36mm;
                                                             overflow: hidden;
+                                                            border: 1px dashed #eee;
                                                         }
-                                                        .price { font-size: 14pt; font-weight: 900; color: #000; margin-bottom: 2mm; border-bottom: 1px solid #eee; width: 100%; padding-bottom: 2mm; }
-                                                        .sku { font-size: 10pt; font-weight: bold; margin-top: 2mm; font-family: monospace; }
-                                                        .name { font-size: 8pt; color: #555; margin-top: 1mm; font-weight: 600; }
-                                                        img { max-width: 20mm; height: auto; margin-top: 2mm; }
+                                                        .qr-section { margin-bottom: 2mm; }
+                                                        .qr-section img { max-width: 18mm; height: auto; display: block; margin: 0 auto; }
+                                                        .sku-tiny { font-size: 6pt; font-family: monospace; color: #444; margin-top: 0.5mm; font-weight: bold; }
+                                                        
+                                                        .price { font-size: 13pt; font-weight: 900; color: #000; margin: 1.5mm 0; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 100%; padding: 1mm 0; }
+                                                        .imei { font-size: 9pt; font-weight: bold; margin-top: 1mm; font-family: monospace; word-break: break-all; }
+                                                        .name { font-size: 8pt; color: #333; margin-top: 0.5mm; font-weight: 700; line-height: 1.1; max-height: 2.2em; overflow: hidden; }
                                                     </style>
                                                 </head>
                                                 <body>
+                                                    <div class="qr-section">
+                                                        <img src="${qrImage}" />
+                                                        <div class="sku-tiny">${sku}</div>
+                                                    </div>
                                                     <div class="price">${price}</div>
-                                                    <img src="${qrImage}" />
-                                                    <div class="sku">${sku}</div>
+                                                    <div class="imei">IMEI: ${sku}</div>
                                                     <div class="name">${name}</div>
                                                     <script>
                                                         window.onload = () => { window.print(); window.close(); }
