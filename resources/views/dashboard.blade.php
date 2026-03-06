@@ -117,7 +117,8 @@
                                             <div>
                                                 <p class="text-sm font-black text-slate-900">{{ $pos->transaction_number }}</p>
                                                 <p class="text-xs text-slate-500 font-medium">{{ $pos->store->name }} •
-                                                    {{ $pos->created_at->format('H:i') }} WIB
+                                                    <span
+                                                        title="{{ $pos->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($pos->created_at) }}</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -177,8 +178,9 @@
                                                 class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight {{ $statusColors[$ti->status] ?? 'bg-slate-100 text-slate-600' }}">
                                                 {{ $ti->status }}
                                             </span>
-                                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">
-                                                {{ $ti->created_at->format('H:i') }} WIB
+                                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase"
+                                                title="{{ $ti->created_at->format('d M Y H:i') }}">
+                                                {{ formatIndonesianRelativeTime($ti->created_at) }}
                                             </p>
                                         </div>
                                     </li>

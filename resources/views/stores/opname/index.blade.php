@@ -60,12 +60,13 @@
                             <td class="px-8 py-6 text-sm">
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
-                                                    {{ $opname->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                                            {{ $opname->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
                                     {{ $opname->status }}
                                 </span>
                             </td>
                             <td class="px-8 py-6 text-xs font-bold text-slate-500 tracking-tight">
-                                {{ $opname->created_at->format('M d, Y H:i') }}
+                                <span
+                                    title="{{ $opname->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($opname->created_at) }}</span>
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2">

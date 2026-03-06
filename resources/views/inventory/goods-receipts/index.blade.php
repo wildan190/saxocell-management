@@ -64,7 +64,8 @@
                     @forelse($receipts as $receipt)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-slate-900">
-                                {{ $receipt->received_date }}
+                                <span
+                                    title="{{ \Carbon\Carbon::parse($receipt->received_date)->format('d M Y') }}">{{ formatIndonesianRelativeTime($receipt->received_date) }}</span>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-indigo-600">
                                 {{ $receipt->receipt_number }}

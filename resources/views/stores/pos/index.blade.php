@@ -121,7 +121,8 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-slate-500 text-xs font-medium">
-                                        {{ $tx->created_at->format('d M Y H:i') }}
+                                        <span
+                                            title="{{ $tx->created_at->format('d M Y H:i') }}">{{ formatIndonesianRelativeTime($tx->created_at) }}</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('stores.pos.show', [$store, $tx]) }}"
