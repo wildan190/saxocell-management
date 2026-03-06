@@ -43,7 +43,7 @@
                     @forelse($opnames as $opname)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4 text-sm font-bold text-slate-900">{{ $opname->reference_number }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ $opname->warehouse->name }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">{{ $opname->warehouse->name ?? 'N/A' }}</td>
                             <td class="px-6 py-4">
                                 <span
                                     class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider {{ $opname->status === 'completed' ? 'bg-green-100 text-green-700' : ($opname->status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700') }}">

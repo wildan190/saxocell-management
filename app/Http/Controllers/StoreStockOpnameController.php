@@ -43,13 +43,13 @@ class StoreStockOpnameController extends Controller
 
         $this->logActivity($opname, 'started', 'Store stock opname session started');
 
-        return redirect()->route('stores.opname.scan', [$store, $opname]);
+        return redirect()->route('stores.opname.scan', ['store' => $store, 'opname' => $opname]);
     }
 
     public function scan(Store $store, StockOpname $opname)
     {
         if ($opname->status !== 'pending') {
-            return redirect()->route('stores.opname.show', [$store, $opname])->with('error', 'This opname session is already ' . $opname->status);
+            return redirect()->route('stores.opname.show', ['store' => $store, 'opname' => $opname])->with('error', 'This opname session is already ' . $opname->status);
         }
 
         $opname->load(['items.product']);
@@ -82,7 +82,7 @@ class StoreStockOpnameController extends Controller
             ->first();
 
         if ($request->increment) {
-            $physicalStock = ($opnameItem ? $opnameItem->physical_stock : 0) + 1;
+            $physicalStock = 1; // Stock is always 1 for unique items/used goods
         } else {
             $physicalStock = $request->physical_stock ?? 0;
         }
@@ -136,7 +136,7 @@ class StoreStockOpnameController extends Controller
 
             $this->logActivity($opname, 'completed', 'Store stock opname finalized. Store inventory adjusted.');
 
-            return redirect()->route('stores.opname.show', [$store, $opname])->with('success', 'Stock opname completed and store inventory adjusted.');
+            return redirect()->route('stores.opname.show', ['store' => $store, 'opname' => $opname])->with('success', 'Stock opname completed and store inventory adjusted.');
         });
     }
 

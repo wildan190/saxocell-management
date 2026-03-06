@@ -12,7 +12,8 @@
                 </a>
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-slate-900">{{ $opname->reference_number }}</h1>
-                    <p class="text-sm text-slate-500 font-bold uppercase tracking-widest">{{ $opname->warehouse->name }}</p>
+                    <p class="text-sm text-slate-500 font-bold uppercase tracking-widest">
+                        {{ $opname->warehouse->name ?? 'N/A' }}</p>
                 </div>
             </div>
 
@@ -165,7 +166,9 @@
         const counterCard = document.getElementById('counter-card');
         const emptyState = document.getElementById('empty-state');
 
-        let currentSku = '';
+        let isProcessing = false;
+        let lastScannedSku = '';
+        let lastScannedTime = 0;
 
         function onScanSuccess(decodedText, decodedResult) {
             handleSku(decodedText);
@@ -177,6 +180,18 @@
         }
 
         function handleSku(sku) {
+            if (isProcessing) return;
+
+            // Debounce/Cooldown: Prevent rapid-fire scanning of the same item
+            const now = Date.now();
+            if (sku === lastScannedSku && (now - lastScannedTime) < 2000) {
+                console.log('Debounced: ' + sku);
+                return;
+            }
+
+            isProcessing = true;
+            lastScannedSku = sku;
+            lastScannedTime = now;
             currentSku = sku;
 
             fetch(`{{ route('inventory.opname.update-item', $opname) }}`, {
@@ -192,6 +207,7 @@
             })
                 .then(res => res.json())
                 .then(data => {
+                    isProcessing = false;
                     if (data.product_name) {
                         // Show counter card and update data
                         emptyState.classList.add('hidden');
@@ -217,6 +233,7 @@
                     }
                 })
                 .catch(err => {
+                    isProcessing = false;
                     console.error(err);
                     alert('Error fetching product data');
                 });

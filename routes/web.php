@@ -161,10 +161,10 @@ Route::middleware('auth')->group(function () {
             Route::get('opname', [StoreStockOpnameController::class, 'index'])->name('stores.opname.index');
             Route::get('opname/create', [StoreStockOpnameController::class, 'create'])->name('stores.opname.create');
             Route::post('opname', [StoreStockOpnameController::class, 'store'])->name('stores.opname.store');
-            Route::get('opname/{stock_opname}', [StoreStockOpnameController::class, 'show'])->name('stores.opname.show');
-            Route::get('opname/{stock_opname}/scan', [StoreStockOpnameController::class, 'scan'])->name('stores.opname.scan');
-            Route::post('opname/{stock_opname}/update-item', [StoreStockOpnameController::class, 'updateItem'])->name('stores.opname.update-item');
-            Route::post('opname/{stock_opname}/complete', [StoreStockOpnameController::class, 'complete'])->name('stores.opname.complete');
+            Route::get('opname/{opname}', [StoreStockOpnameController::class, 'show'])->name('stores.opname.show');
+            Route::get('opname/{opname}/scan', [StoreStockOpnameController::class, 'scan'])->name('stores.opname.scan');
+            Route::post('opname/{opname}/update-item', [StoreStockOpnameController::class, 'updateItem'])->name('stores.opname.update-item');
+            Route::post('opname/{opname}/complete', [StoreStockOpnameController::class, 'complete'])->name('stores.opname.complete');
 
             // Store Goods Receipts
             Route::get('goods-receipts', [StoreGoodsReceiptController::class, 'index'])->name('stores.inventory.goods-receipts.index');

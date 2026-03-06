@@ -42,7 +42,8 @@
                         <tr class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-8 py-6">
                                 <p class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
-                                    {{ $opname->reference_number }}</p>
+                                    {{ $opname->reference_number }}
+                                </p>
                                 @if($opname->notes)
                                     <p class="text-xs text-slate-400 mt-1 italic">{{ Str::limit($opname->notes, 40) }}</p>
                                 @endif
@@ -59,7 +60,7 @@
                             <td class="px-8 py-6 text-sm">
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
-                                            {{ $opname->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                                    {{ $opname->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
                                     {{ $opname->status }}
                                 </span>
                             </td>
@@ -69,7 +70,7 @@
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2">
                                     @if($opname->status === 'pending')
-                                        <a href="{{ route('stores.opname.scan', [$store, $opname]) }}"
+                                        <a href="{{ route('stores.opname.scan', ['store' => $store, 'opname' => $opname]) }}"
                                             class="p-2 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all">
                                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,7 +78,7 @@
                                             </svg>
                                         </a>
                                     @endif
-                                    <a href="{{ route('stores.opname.show', [$store, $opname]) }}"
+                                    <a href="{{ route('stores.opname.show', ['store' => $store, 'opname' => $opname]) }}"
                                         class="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition-all">
                                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
