@@ -16,7 +16,7 @@ class StockOpnameController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StockOpname::with(['warehouse', 'user'])->latest();
+        $query = StockOpname::whereNotNull('warehouse_id')->with(['warehouse', 'user'])->latest();
 
         if ($request->has('warehouse_id')) {
             $query->where('warehouse_id', $request->warehouse_id);
@@ -87,7 +87,7 @@ class StockOpnameController extends Controller
             ->first();
 
         if ($request->increment) {
-            $physicalStock = ($opnameItem ? $opnameItem->physical_stock : 0) + 1;
+            $physicalStock = 1; // Stock is always 1 for unique items/used goods
         } else {
             $physicalStock = $request->physical_stock ?? 0;
         }

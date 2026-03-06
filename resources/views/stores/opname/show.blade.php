@@ -17,7 +17,7 @@
             </div>
 
             @if($opname->status === 'pending')
-                <a href="{{ route('stores.opname.scan', [$store, $opname]) }}"
+                <a href="{{ route('stores.opname.scan', ['store' => $store, 'opname' => $opname]) }}"
                     class="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-indigo-100 hover:bg-indigo-500 transition-all active:scale-[0.98]">
                     Continue Scanning
                 </a>

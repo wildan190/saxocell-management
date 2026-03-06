@@ -106,7 +106,7 @@
                     <div class="space-y-6">
                         <div>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Warehouse</p>
-                            <p class="font-bold text-slate-900">{{ $opname->warehouse->name }}</p>
+                            <p class="font-bold text-slate-900">{{ $opname->warehouse->name ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Performed By</p>

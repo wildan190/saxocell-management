@@ -13,11 +13,12 @@
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-slate-900">{{ $opname->reference_number }}</h1>
                     <p class="text-sm text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">
-                        {{ $store->name }}</p>
+                        {{ $store->name }}
+                    </p>
                 </div>
             </div>
 
-            <form action="{{ route('stores.opname.complete', [$store, $opname]) }}" method="POST">
+            <form action="{{ route('stores.opname.complete', ['store' => $store, 'opname' => $opname]) }}" method="POST">
                 @csrf
                 <button type="submit"
                     onclick="return confirm('Finalize this stock opname? This will adjust your store stock levels permanently.')"
@@ -169,7 +170,9 @@
         const counterCard = document.getElementById('counter-card');
         const emptyState = document.getElementById('empty-state');
 
-        let currentSku = '';
+        let isProcessing = false;
+        let lastScannedSku = '';
+        let lastScannedTime = 0;
 
         function onScanSuccess(decodedText, decodedResult) {
             handleSku(decodedText);
@@ -181,9 +184,21 @@
         }
 
         function handleSku(sku) {
+            if (isProcessing) return;
+
+            // Debounce/Cooldown: Prevent rapid-fire scanning of the same item
+            const now = Date.now();
+            if (sku === lastScannedSku && (now - lastScannedTime) < 2000) {
+                console.log('Debounced: ' + sku);
+                return;
+            }
+
+            isProcessing = true;
+            lastScannedSku = sku;
+            lastScannedTime = now;
             currentSku = sku;
 
-            fetch(`{{ route('stores.opname.update-item', [$store, $opname]) }}`, {
+            fetch(`{{ route('stores.opname.update-item', ['store' => $store, 'opname' => $opname]) }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -196,6 +211,7 @@
             })
                 .then(res => res.json())
                 .then(data => {
+                    isProcessing = false;
                     if (data.product_name) {
                         emptyState.classList.add('hidden');
                         counterCard.classList.remove('hidden');
@@ -211,6 +227,7 @@
                     }
                 })
                 .catch(err => {
+                    isProcessing = false;
                     console.error(err);
                     alert('Error fetching product data');
                 });
@@ -262,7 +279,7 @@
             const phy = parseInt(document.getElementById('physical-input').value);
             if (isNaN(phy)) return alert('Please enter physical count');
 
-            fetch(`{{ route('stores.opname.update-item', [$store, $opname]) }}`, {
+            fetch(`{{ route('stores.opname.update-item', ['store' => $store, 'opname' => $opname]) }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
