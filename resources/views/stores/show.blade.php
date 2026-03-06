@@ -38,7 +38,7 @@
                     class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
                     Transactions
                 </a>
-                <a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
+                <a href="{{ route('stores.goods-receipts.index', $store) }}"
                     class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
                     Goods Receipt
                 </a>

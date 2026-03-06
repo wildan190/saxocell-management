@@ -19,8 +19,8 @@
                                     d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
                                     clip-rule="evenodd" />
                             </svg></li>
-                        <li><a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
-                                class="hover:text-slate-700">Goods Receipts</a></li>
+                        <li><a href="{{ route('stores.goods-receipts.index', $store) }}" class="hover:text-slate-700">Goods
+                                Receipts</a></li>
                     </ol>
                 </nav>
                 <h1 class="text-3xl font-bold leading-tight tracking-tight text-slate-900">Record Store Goods Receipt</h1>
@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <form action="{{ route('stores.inventory.goods-receipts.store', $store) }}" method="POST" class="space-y-6">
+        <form action="{{ route('stores.goods-receipts.store', $store) }}" method="POST" class="space-y-6">
             @csrf
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-8">
                 {{-- 1. Items Received (Top) --}}
@@ -245,7 +245,7 @@
                 </div>
 
                 <div class="flex justify-end gap-3 pt-8 border-t border-slate-100">
-                    <a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
+                    <a href="{{ route('stores.goods-receipts.index', $store) }}"
                         class="px-6 py-2 text-sm font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Cancel</a>
                     <button type="submit"
                         class="rounded-2xl bg-slate-900 px-10 py-4 text-sm font-black text-white shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98] uppercase tracking-widest">
@@ -260,13 +260,13 @@
         <script>
             const productMaster = {
                 @foreach($products as $product)
-                                '{{ $product->sku }}': {
+                                            '{{ $product->sku }}': {
                         name: '{{ addslashes($product->name) }}',
                         unit: '{{ addslashes($product->unit) }}',
                         category: '{{ addslashes($product->category) }}'
                     },
                 @endforeach
-                    };
+                            };
 
             let rowCount = 1;
             let accountCount = 1;
@@ -354,34 +354,34 @@
                 const newRow = document.createElement('div');
                 newRow.className = 'account-row grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-slate-50/30 p-4 rounded-xl border border-slate-100/50';
                 newRow.innerHTML = `
-                            <div class="sm:col-span-7">
-                                <select name="payment_accounts[${accountCount}][id]" required
-                                    class="block w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold focus:ring-indigo-600 focus:border-indigo-600 transition-all bg-white font-black">
-                                    @foreach($accounts as $acc)
-                                        <option value="{{ $acc->id }}">{{ $acc->name }} — Rp {{ number_format($acc->balance, 0, ',', '.') }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="sm:col-span-1">
-                                <div class="flex flex-col items-center gap-1.5 pt-2">
-                                    <input type="checkbox" name="payment_accounts[${accountCount}][has_fee]" value="1"
-                                        onchange="calculateTotal()"
-                                        class="fee-checkbox h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 transition-all">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase leading-none text-center">Admin Fee<br>Rp. 2500</span>
-                                </div>
-                            </div>
-                            <div class="sm:col-span-3">
-                                <input type="number" name="payment_accounts[${accountCount}][amount]" required min="0" oninput="validatePayments()" placeholder="0"
-                                    class="payment-amount block w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-black text-right focus:ring-indigo-600 focus:border-indigo-600 transition-all">
-                            </div>
-                            <div class="sm:col-span-1 flex justify-center pb-1">
-                                <button type="button" onclick="this.closest('.account-row').remove(); validatePayments();" class="text-slate-300 hover:text-red-500 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        `;
+                                    <div class="sm:col-span-7">
+                                        <select name="payment_accounts[${accountCount}][id]" required
+                                            class="block w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold focus:ring-indigo-600 focus:border-indigo-600 transition-all bg-white font-black">
+                                            @foreach($accounts as $acc)
+                                                <option value="{{ $acc->id }}">{{ $acc->name }} — Rp {{ number_format($acc->balance, 0, ',', '.') }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <div class="flex flex-col items-center gap-1.5 pt-2">
+                                            <input type="checkbox" name="payment_accounts[${accountCount}][has_fee]" value="1"
+                                                onchange="calculateTotal()"
+                                                class="fee-checkbox h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 transition-all">
+                                            <span class="text-[10px] font-black text-slate-400 uppercase leading-none text-center">Admin Fee<br>Rp. 2500</span>
+                                        </div>
+                                    </div>
+                                    <div class="sm:col-span-3">
+                                        <input type="number" name="payment_accounts[${accountCount}][amount]" required min="0" oninput="validatePayments()" placeholder="0"
+                                            class="payment-amount block w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-black text-right focus:ring-indigo-600 focus:border-indigo-600 transition-all">
+                                    </div>
+                                    <div class="sm:col-span-1 flex justify-center pb-1">
+                                        <button type="button" onclick="this.closest('.account-row').remove(); validatePayments();" class="text-slate-300 hover:text-red-500 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                `;
                 container.appendChild(newRow);
                 accountCount++;
             }
@@ -391,40 +391,40 @@
                 const newRow = document.createElement('div');
                 newRow.className = 'item-row bg-slate-50/50 p-6 rounded-2xl border border-slate-200';
                 newRow.innerHTML = `
-                            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
-                                <div class="lg:col-span-6 grid grid-cols-1 gap-4 sm:grid-cols-12">
-                                    <div class="sm:col-span-3">
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">SKU / Code</label>
-                                        <div class="relative group/sku">
-                                            <input type="text" name="items[${rowCount}][sku]" required list="product-skus" oninput="handleSkuInput(this)"
-                                                class="sku-input block w-full rounded-xl border-slate-200 pl-4 pr-10 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
-                                            <button type="button" onclick="generateSku(this)" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-indigo-600 transition-colors">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+                                        <div class="lg:col-span-6 grid grid-cols-1 gap-4 sm:grid-cols-12">
+                                            <div class="sm:col-span-3">
+                                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">SKU / Code</label>
+                                                <div class="relative group/sku">
+                                                    <input type="text" name="items[${rowCount}][sku]" required list="product-skus" oninput="handleSkuInput(this)"
+                                                        class="sku-input block w-full rounded-xl border-slate-200 pl-4 pr-10 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
+                                                    <button type="button" onclick="generateSku(this)" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-indigo-600 transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="sm:col-span-5">
+                                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Product Name</label>
+                                                <input type="text" name="items[${rowCount}][name]" required class="name-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
+                                            </div>
+                                            <div class="sm:col-span-4">
+                                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Category</label>
+                                                <input type="text" name="items[${rowCount}][category]" list="category-list" class="category-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
+                                            </div>
+                                        </div>
+                                        <div class="lg:col-span-5 grid grid-cols-2 gap-4 lg:grid-cols-4 items-end">
+                                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Price</label><input type="number" name="items[${rowCount}][purchase_price]" required step="0.01" min="0" oninput="calculateTotal()" class="price-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-right transition-all bg-white"></div>
+                                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Qty</label><input type="number" name="items[${rowCount}][quantity]" required step="1" min="1" oninput="calculateTotal()" class="qty-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-center transition-all bg-white"></div>
+                                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Unit</label><input type="text" name="items[${rowCount}][unit]" required class="unit-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-center transition-all bg-white"></div>
+                                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Subtotal</label><div class="subtotal-display block w-full px-2 py-3 text-sm font-black text-indigo-600 text-right">Rp 0</div></div>
+                                        </div>
+                                        <div class="lg:col-span-1 flex justify-center pt-6 lg:pt-8">
+                                            <button type="button" onclick="this.closest('.item-row').remove(); calculateTotal();" class="p-2 text-slate-300 hover:text-red-500 transition-colors bg-white rounded-lg border border-slate-100 hover:shadow-sm">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="sm:col-span-5">
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Product Name</label>
-                                        <input type="text" name="items[${rowCount}][name]" required class="name-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
-                                    </div>
-                                    <div class="sm:col-span-4">
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Category</label>
-                                        <input type="text" name="items[${rowCount}][category]" list="category-list" class="category-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm transition-all bg-white">
-                                    </div>
-                                </div>
-                                <div class="lg:col-span-5 grid grid-cols-2 gap-4 lg:grid-cols-4 items-end">
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Price</label><input type="number" name="items[${rowCount}][purchase_price]" required step="0.01" min="0" oninput="calculateTotal()" class="price-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-right transition-all bg-white"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Qty</label><input type="number" name="items[${rowCount}][quantity]" required step="1" min="1" oninput="calculateTotal()" class="qty-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-center transition-all bg-white"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Unit</label><input type="text" name="items[${rowCount}][unit]" required class="unit-input block w-full rounded-xl border-slate-200 px-4 py-3 shadow-sm focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm text-center transition-all bg-white"></div>
-                                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Subtotal</label><div class="subtotal-display block w-full px-2 py-3 text-sm font-black text-indigo-600 text-right">Rp 0</div></div>
-                                </div>
-                                <div class="lg:col-span-1 flex justify-center pt-6 lg:pt-8">
-                                    <button type="button" onclick="this.closest('.item-row').remove(); calculateTotal();" class="p-2 text-slate-300 hover:text-red-500 transition-colors bg-white rounded-lg border border-slate-100 hover:shadow-sm">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+                                `;
                 container.appendChild(newRow);
                 rowCount++;
             }

@@ -19,7 +19,7 @@
                                     d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
                                     clip-rule="evenodd" />
                             </svg></li>
-                        <li><a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
+                        <li><a href="{{ route('stores.goods-receipts.index', $store) }}"
                                 class="hover:text-slate-700">Goods Receipts</a></li>
                         <li><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
@@ -129,7 +129,7 @@
             </div>
 
             <div class="p-8 bg-slate-50/50 border-t border-slate-100 flex justify-end space-x-3">
-                <a href="{{ route('stores.inventory.goods-receipts.index', $store) }}"
+                <a href="{{ route('stores.goods-receipts.index', $store) }}"
                     class="rounded-xl bg-slate-900 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-all">
                     Back to List
                 </a>

@@ -167,10 +167,10 @@ Route::middleware('auth')->group(function () {
             Route::post('opname/{opname}/complete', [StoreStockOpnameController::class, 'complete'])->name('stores.opname.complete');
 
             // Store Goods Receipts
-            Route::get('goods-receipts', [StoreGoodsReceiptController::class, 'index'])->name('stores.inventory.goods-receipts.index');
-            Route::get('goods-receipts/create', [StoreGoodsReceiptController::class, 'create'])->name('stores.inventory.goods-receipts.create');
-            Route::post('goods-receipts', [StoreGoodsReceiptController::class, 'store'])->name('stores.inventory.goods-receipts.store');
-            Route::get('goods-receipts/{goodsReceipt}', [StoreGoodsReceiptController::class, 'show'])->name('stores.inventory.goods-receipts.show');
+            Route::get('goods-receipts', [StoreGoodsReceiptController::class, 'index'])->name('stores.goods-receipts.index');
+            Route::get('goods-receipts/create', [StoreGoodsReceiptController::class, 'create'])->name('stores.goods-receipts.create');
+            Route::post('goods-receipts', [StoreGoodsReceiptController::class, 'store'])->name('stores.goods-receipts.store');
+            Route::get('goods-receipts/{goodsReceipt}', [StoreGoodsReceiptController::class, 'show'])->name('stores.goods-receipts.show');
         });
     });
 
