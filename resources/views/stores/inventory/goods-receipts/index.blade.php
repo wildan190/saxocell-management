@@ -21,7 +21,7 @@
                         class="font-semibold text-indigo-600">{{ $store->name }}</span>.</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 flex space-x-3">
-                <a href="{{ route('stores.inventory.goods-receipts.create', $store) }}"
+                <a href="{{ route('stores.goods-receipts.create', $store) }}"
                     class="block rounded-xl bg-indigo-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-all active:scale-[0.98]">
                     New Receipt
                 </a>
