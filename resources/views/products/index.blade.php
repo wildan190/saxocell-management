@@ -67,7 +67,7 @@
                                 <div class="flex items-center">
                                     <div id="qrcode-{{ $product->id }}"
                                         class="qrcode-small w-16 h-16 p-2 bg-indigo-50 border-2 border-indigo-100 rounded-xl cursor-pointer hover:border-indigo-500 hover:scale-105 transition-all shadow-sm flex items-center justify-center group"
-                                        onclick="showFullQR('{{ $product->sku }}', '{{ $product->name }}', {{ $product->selling_price ?? 0 }})">
+                                        onclick="showFullQR('{{ $product->sku }}', '{{ addslashes($product->name) }}', {{ $product->selling_price ?? 0 }}, '{{ $product->imei }}')">
                                     </div>
                                     <script>
                                         // Use high contrast for maximum visibility
@@ -172,9 +172,9 @@
     <script>
         let modalQR = null;
 
-        function showFullQR(sku, name, price) {
+        function showFullQR(sku, name, price, imei) {
             document.getElementById('qr-sku-small').innerText = sku;
-            document.getElementById('qr-imei').innerText = 'IMEI: ' + sku;
+            document.getElementById('qr-imei').innerText = 'IMEI: ' + (imei && imei !== 'null' && imei !== '' ? imei : sku);
             document.getElementById('qr-name').innerText = name;
 
             const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
@@ -204,49 +204,49 @@
             const sku = document.getElementById('qr-sku-small').innerText;
             const name = document.getElementById('qr-name').innerText;
             const price = document.getElementById('qr-price').innerText;
+            const imei = document.getElementById('qr-imei').innerText;
             const qrCanvas = document.querySelector('#full-qrcode canvas');
             const qrImage = qrCanvas.toDataURL("image/png");
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
-                                                <html>
-                                                    <head>
-                                                        <title>Print Label - ${sku}</title>
-                                                        <style>
-                                                            @page { size: 50mm 40mm; margin: 0; }
-                                                            body { 
-                                                                font-family: system-ui, -apple-system, sans-serif; 
-                                                                margin: 0; padding: 2mm; 
-                                                                text-align: center; 
-                                                                display: flex; flex-direction: column; 
-                                                                align-items: center; justify-content: center; 
-                                                                height: 36mm;
-                                                                overflow: hidden;
-                                                                border: 1px dashed #eee;
-                                                            }
-                                                            .qr-section { margin-bottom: 2mm; }
-                                                            .qr-section img { max-width: 18mm; height: auto; display: block; margin: 0 auto; }
-                                                            .sku-tiny { font-size: 6pt; font-family: monospace; color: #444; margin-top: 0.5mm; font-weight: bold; }
+                                                        <html>
+                                                            <head>
+                                                                <title>Print Label - ${sku}</title>
+                                                                <style>
+                                                                    @page { size: 50mm 40mm; margin: 0; }
+                                                                    body { 
+                                                                        font-family: system-ui, -apple-system, sans-serif; 
+                                                                        margin: 0; padding: 2mm; 
+                                                                        text-align: center; 
+                                                                        display: flex; flex-direction: column; 
+                                                                        align-items: center; justify-content: center; 
+                                                                        height: 36mm;
+                                                                        overflow: hidden;
+                                                                    }
+                                                                    .qr-section { margin-bottom: 2mm; }
+                                                                    .qr-section img { max-width: 18mm; height: auto; display: block; margin: 0 auto; }
+                                                                    .sku-tiny { font-size: 6pt; font-family: monospace; color: #444; margin-top: 0.5mm; font-weight: bold; }
 
-                                                            .price { font-size: 13pt; font-weight: 900; color: #000; margin: 1.5mm 0; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 100%; padding: 1mm 0; }
-                                                            .imei { font-size: 9pt; font-weight: bold; margin-top: 1mm; font-family: monospace; word-break: break-all; }
-                                                            .name { font-size: 8pt; color: #333; margin-top: 0.5mm; font-weight: 700; line-height: 1.1; max-height: 2.2em; overflow: hidden; }
-                                                        </style>
-                                                    </head>
-                                                    <body>
-                                                        <div class="qr-section">
-                                                            <img src="${qrImage}" />
-                                                            <div class="sku-tiny">${sku}</div>
-                                                        </div>
-                                                        <div class="price">${price}</div>
-                                                        <div class="imei">IMEI: ${sku}</div>
-                                                        <div class="name">${name}</div>
-                                                        <script>
-                                                            window.onload = () => { window.print(); window.close(); }
-                                                        <\/script>
-                                                    </body>
-                                                </html>
-                                            `);
+                                                                    .price { font-size: 13pt; font-weight: 900; color: #000; margin: 1.5mm 0; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 100%; padding: 1mm 0; }
+                                                                    .imei { font-size: 9pt; font-weight: bold; margin-top: 1mm; font-family: monospace; word-break: break-all; }
+                                                                    .name { font-size: 8pt; color: #333; margin-top: 0.5mm; font-weight: 700; line-height: 1.1; max-height: 2.2em; overflow: hidden; }
+                                                                </style>
+                                                            </head>
+                                                            <body>
+                                                                <div class="qr-section">
+                                                                    <img src="${qrImage}" />
+                                                                    <div class="sku-tiny">${sku}</div>
+                                                                </div>
+                                                                <div class="price">${price}</div>
+                                                                <div class="imei">${imei}</div>
+                                                                <div class="name">${name}</div>
+                                                                <script>
+                                                                    window.onload = () => { window.print(); window.close(); }
+                                                                <\/script>
+                                                            </body>
+                                                        </html>
+                                                    `);
             printWindow.document.close();
         }
     </script>

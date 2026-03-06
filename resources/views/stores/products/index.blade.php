@@ -63,7 +63,7 @@
                                 <div class="flex items-center">
                                     <div id="qrcode-{{ $storeProduct->id }}"
                                         class="qrcode-small w-16 h-16 p-2 bg-indigo-50 border-2 border-indigo-100 rounded-xl cursor-pointer hover:border-indigo-500 hover:scale-105 transition-all shadow-sm flex items-center justify-center group"
-                                        onclick="showFullQR('{{ $storeProduct->product->sku }}', '{{ addslashes($storeProduct->product->name) }}', {{ $storeProduct->price }})">
+                                        onclick="showFullQR('{{ $storeProduct->product->sku }}', '{{ addslashes($storeProduct->product->name) }}', {{ $storeProduct->price }}, '{{ $storeProduct->imei ?? $storeProduct->product->imei }}')">
                                     </div>
                                     <script>
                                         document.addEventListener("DOMContentLoaded", function () {
@@ -234,7 +234,7 @@
                                         View
                                     </a>
                                     <button type="button"
-                                        onclick="openAdjustModal({{ $storeProduct->id }}, '{{ addslashes($storeProduct->product->name) }}', '{{ addslashes($storeProduct->product->category ?? '') }}', '{{ addslashes($storeProduct->description_1 ?? '') }}', '{{ addslashes($storeProduct->description_2 ?? '') }}', '{{ addslashes($storeProduct->description_3 ?? '') }}', '{{ addslashes($storeProduct->internal_description ?? '') }}', '{{ addslashes($storeProduct->label ?? '') }}', {{ $storeProduct->price }}, {{ $storeProduct->min_price }}, {{ $storeProduct->max_price }}, {{ $storeProduct->stock }}, {{ $storeProduct->is_active ? 'true' : 'false' }}, {{ $storeProduct->product->purchase_price ?? 0 }})"
+                                        onclick="openAdjustModal({{ $storeProduct->id }}, '{{ addslashes($storeProduct->product->name) }}', '{{ addslashes($storeProduct->product->category ?? '') }}', '{{ addslashes($storeProduct->description_1 ?? '') }}', '{{ addslashes($storeProduct->description_2 ?? '') }}', '{{ addslashes($storeProduct->description_3 ?? '') }}', '{{ addslashes($storeProduct->internal_description ?? '') }}', '{{ addslashes($storeProduct->label ?? '') }}', {{ $storeProduct->price }}, {{ $storeProduct->min_price }}, {{ $storeProduct->max_price }}, {{ $storeProduct->stock }}, {{ $storeProduct->is_active ? 'true' : 'false' }}, {{ $storeProduct->product->purchase_price ?? 0 }}, '{{ $storeProduct->imei ?? '' }}')"
                                         class="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 hover:bg-indigo-100 transition-colors">
                                         Edit
                                     </button>
@@ -307,9 +307,9 @@
     <script>
         let modalQR = null;
 
-        function showFullQR(sku, name, price) {
+        function showFullQR(sku, name, price, imei) {
             document.getElementById('qr-sku-small').innerText = sku;
-            document.getElementById('qr-imei').innerText = 'IMEI: ' + sku;
+            document.getElementById('qr-imei').innerText = 'IMEI: ' + (imei && imei !== 'null' && imei !== '' ? imei : sku);
             document.getElementById('qr-name').innerText = name;
 
             const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
@@ -338,6 +338,7 @@
             const sku = document.getElementById('qr-sku-small').innerText;
             const name = document.getElementById('qr-name').innerText;
             const price = document.getElementById('qr-price').innerText;
+            const imei = document.getElementById('qr-imei').innerText;
             const qrCanvas = document.querySelector('#full-qrcode canvas');
             const qrImage = qrCanvas.toDataURL("image/png");
 
@@ -373,7 +374,7 @@
                                                         <div class="sku-tiny">${sku}</div>
                                                     </div>
                                                     <div class="price">${price}</div>
-                                                    <div class="imei">IMEI: ${sku}</div>
+                                                    <div class="imei">${imei}</div>
                                                     <div class="name">${name}</div>
                                                     <script>
                                                         window.onload = () => { window.print(); window.close(); }
@@ -384,7 +385,7 @@
             printWindow.document.close();
         }
 
-        function openAdjustModal(id, name, category, d1, d2, d3, internal_desc, label, price, min_price, max_price, stock, isActive, purchase_price) {
+        function openAdjustModal(id, name, category, d1, d2, d3, internal_desc, label, price, min_price, max_price, stock, isActive, purchase_price, imei) {
             const form = document.getElementById('adjustForm');
             form.action = `/stores/{{ $store->id }}/products/${id}/adjust`;
 
@@ -400,6 +401,7 @@
             document.getElementById('modalMaxPrice').value = max_price;
             document.getElementById('modalStock').value = stock;
             document.getElementById('modalActive').checked = isActive === true || isActive === 'true';
+            document.getElementById('modalImei').value = imei && imei !== 'null' ? imei : '';
             
             // Format Purchase Price
             const formattedPurchase = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(purchase_price);

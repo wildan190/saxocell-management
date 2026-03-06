@@ -28,6 +28,15 @@
             <div class="space-y-6">
                 <div class="group">
                     <label
+                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 group-focus-within:text-indigo-600 transition-colors">
+                        IMEI / Serial Number
+                    </label>
+                    <input type="text" name="imei" value="{{ $product->imei }}"
+                        class="block w-full px-6 py-4.5 rounded-[1.5rem] border-slate-100 bg-slate-50 font-black text-slate-900 focus:ring-[12px] focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all text-lg"
+                        placeholder="e.g. 3527... or S123...">
+                </div>
+                <div class="group">
+                    <label
                         class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 group-focus-within:text-indigo-600 transition-colors">Acquisition
                         Price (Buy)</label>
                     <div class="relative">
@@ -328,7 +337,8 @@
             <div class="p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
                 <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1">Harga Jual Saat Ini</p>
                 <p class="text-3xl font-black text-yellow-700">Rp
-                    {{ number_format($product->selling_price, 0, ',', '.') }}</p>
+                    {{ number_format($product->selling_price, 0, ',', '.') }}
+                </p>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Harga

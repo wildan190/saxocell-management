@@ -47,6 +47,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'sku' => 'required|string|unique:products',
+            'imei' => 'nullable|string|max:50',
             'name' => 'required|string|max:255',
             'unit' => 'required|string|max:50',
             'description' => 'nullable|string',
@@ -63,6 +64,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'imei' => 'nullable|string|max:50',
             'unit' => 'required|string|max:50',
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric|min:0',

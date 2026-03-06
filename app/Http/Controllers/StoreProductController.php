@@ -32,6 +32,7 @@ class StoreProductController extends Controller
     public function adjust(Request $request, Store $store, StoreProduct $product)
     {
         $validated = $request->validate([
+            'imei' => 'nullable|string|max:50',
             'description_1' => 'nullable|string',
             'description_2' => 'nullable|string',
             'description_3' => 'nullable|string',
